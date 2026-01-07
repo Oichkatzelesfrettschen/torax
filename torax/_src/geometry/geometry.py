@@ -227,7 +227,9 @@ class Geometry:
   Phi_b_dot: array_typing.FloatScalar
   _z_magnetic_axis: array_typing.FloatScalar | None
 
-  def __eq__(self, other: 'Geometry') -> bool:
+  def __eq__(self, other: object) -> bool:
+    if not isinstance(other, Geometry):
+      return NotImplemented
     try:
       chex.assert_trees_all_equal(self, other)
     except AssertionError:

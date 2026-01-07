@@ -20,7 +20,7 @@ protocol defined here.
 from collections.abc import Mapping
 import dataclasses
 import functools
-from typing import Protocol, Type
+from typing import Protocol, Type, cast
 
 import chex
 import jax
@@ -251,7 +251,7 @@ class TimeDependentGeometryProvider:
   def __call__(self, t: chex.Numeric) -> geometry.Geometry:
     """Returns a Geometry instance at the given time."""
     chex.assert_type(t, jnp.floating)
-    return self._get_geometry_base(t, geometry.Geometry)
+    return cast(geometry.Geometry, self._get_geometry_base(t, geometry.Geometry))
 
 
 @jax.jit

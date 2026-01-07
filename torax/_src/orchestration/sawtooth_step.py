@@ -16,6 +16,8 @@
 
 import dataclasses
 import functools
+from typing import cast
+
 import jax
 from torax._src import state
 from torax._src.config import build_runtime_params
@@ -153,7 +155,7 @@ def sawtooth_step(
         input_post_processed_outputs=input_post_processed_outputs,
     )
 
-  return jax.lax.cond(
+  result = jax.lax.cond(
       solver_numeric_outputs.sawtooth_crash,
       _make_post_crash_state_and_post_processed_outputs,
       lambda: (
@@ -161,6 +163,7 @@ def sawtooth_step(
           input_post_processed_outputs,
       ),
   )
+  return cast(tuple[sim_state.SimState, post_processing.PostProcessedOutputs], result)
 
 
 def _evolve_x_after_sawtooth(
@@ -222,4 +225,4 @@ def _evolve_x_after_sawtooth(
       evolving_names,
   )
 
-  return x_evolved
+  return cast(tuple[cell_variable.CellVariable, ...], x_evolved)

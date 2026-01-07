@@ -14,6 +14,7 @@
 
 """Logic which controls the stepping over time of the simulation."""
 import dataclasses
+from typing import cast
 import functools
 
 import chex
@@ -388,7 +389,7 @@ class SimulationStepFn:
 
     # If a sawtooth crash is not triggered for any reason,the input
     # state and post-processed outputs will be returned unchanged.
-    return jax.lax.cond(
+    result = jax.lax.cond(
         jnp.logical_and(
             input_state.solver_numeric_outputs.sawtooth_crash,
             max_dt > sawtooth_params.crash_step_duration,
@@ -396,6 +397,7 @@ class SimulationStepFn:
         lambda *args: (input_state, previous_post_processed_outputs),
         _sawtooth_step_fn,
     )
+    return cast(tuple[sim_state.SimState, post_processing.PostProcessedOutputs], result)
 
   def _adaptive_step(
       self,

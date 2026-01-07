@@ -16,7 +16,7 @@
 
 import dataclasses
 import functools
-from typing import Any, Callable
+from typing import Any, Callable, TypeAlias, cast
 
 import chex
 import jax
@@ -28,7 +28,7 @@ from torax._src import array_typing
 # LoopStatistics must be integer dtypes.
 _State = Any
 _LoopStatistics = Any
-_Counter = array_typing.IntScalar
+_Counter: TypeAlias = array_typing.IntScalar
 
 
 @jax.tree_util.register_dataclass
@@ -108,7 +108,7 @@ def whilei_loop(
           loop_statistics=init_val[1],
       ),
   )
-  return result
+  return cast(WhileiLoopState, result)
 
 
 @whilei_loop.defjvp

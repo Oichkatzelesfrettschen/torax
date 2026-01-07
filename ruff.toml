@@ -1,0 +1,17 @@
+line-length = 80
+target-version = "py311"
+extend-exclude = [
+  "docs",
+  "examples",
+  "torax/tests",
+  "torax/_src/tests",
+  "torax/_src/**/tests",
+  "torax/tests/test_data",
+  "torax/data",
+  "torax/torax/data",
+]
+
+[lint]
+# Torax uses `isort` + `pyink` for formatting; keep Ruff focused on correctness.
+select = ["E", "F", "B"]
+ignore = ["E501"]

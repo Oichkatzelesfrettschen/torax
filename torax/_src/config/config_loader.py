@@ -15,6 +15,7 @@
 """Functions to load a config from config file or directory."""
 
 import importlib
+import importlib.util
 import os
 import pathlib
 import sys
@@ -76,12 +77,11 @@ def _import_from_path(
 ) -> types.ModuleType:
 
   spec = importlib.util.spec_from_file_location(module_name, file_path)
+  if spec is None or spec.loader is None:
+    raise ValueError(f'No loader found for module {module_name}.')
   module = importlib.util.module_from_spec(spec)
   sys.modules[module_name] = module
-  if module is None:
-    raise ValueError(f'No loader found for module {module_name}.')
-  else:
-    spec.loader.exec_module(module)  # pytype: disable=attribute-error
+  spec.loader.exec_module(module)  # pytype: disable=attribute-error
   return module
 
 
@@ -117,7 +117,7 @@ def import_module(path: str | pathlib.Path) -> dict[str, Any]:
 
   # An arbitrary module name is needed to import the config file.
   arbitrary_module_name = '_torax_temp_config_import'
-  module = _import_from_path(arbitrary_module_name, path)
+  module = _import_from_path(arbitrary_module_name, pathlib.Path(path))
   return vars(module)
 
 

@@ -21,7 +21,7 @@
   concentrations based on the edge model outputs.
 """
 import dataclasses
-from typing import Any, Callable, Mapping, Sequence, TypeAlias
+from typing import Any, Callable, Mapping, Sequence, TypeAlias, cast
 
 import chex
 import equinox as eqx
@@ -179,7 +179,10 @@ class RuntimeParamsProvider:
           _get_provider_value_from_replace_value(leaf, replace_value)
       )
 
-    return eqx.tree_at(get_nodes_to_replace, self, replace=new_provider_values)
+    return cast(
+        typing_extensions.Self,
+        eqx.tree_at(get_nodes_to_replace, self, replace=new_provider_values),
+    )
 
   def get_node_from_path(self, path: str) -> Any:
     """Iteratively call `getattr` on `self` from dot-separated path of attrs."""
@@ -301,4 +304,3 @@ def get_consistent_runtime_params_and_geometry(
       runtime_params_from_provider, edge_outputs
   )
   return runtime_params_lib.make_ip_consistent(runtime_params, geo)
-
