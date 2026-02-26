@@ -36,6 +36,7 @@ restrictions as the dynamic arguments both in terms of types and how they are
 used. They are marked as static in their definition and are marked as such when
 input to JAX.
 """
+
 from collections.abc import Mapping
 import dataclasses
 
@@ -51,7 +52,9 @@ from torax._src.neoclassical import runtime_params as neoclassical_params
 from torax._src.pedestal_model import runtime_params as pedestal_model_params
 from torax._src.solver import runtime_params as solver_params
 from torax._src.sources import runtime_params as sources_params
-from torax._src.time_step_calculator import runtime_params as time_step_calculator_runtime_params
+from torax._src.time_step_calculator import (
+    runtime_params as time_step_calculator_runtime_params,
+)
 from torax._src.transport_model import runtime_params as transport_model_params
 
 # Many of the variables follow scientific or mathematical notation, so disable
@@ -62,58 +65,58 @@ from torax._src.transport_model import runtime_params as transport_model_params
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams:
-  """A slice of the parameters at a specific time t.
+    """A slice of the parameters at a specific time t.
 
-  This PyTree is a slice of the overall TORAX config at a specific time t
-  excluding the geometry, grouping the parameters for ease of passing into
-  various downstream functions. It includes both parameters which are
-  time-dependent and parameters which are not.
+    This PyTree is a slice of the overall TORAX config at a specific time t
+    excluding the geometry, grouping the parameters for ease of passing into
+    various downstream functions. It includes both parameters which are
+    time-dependent and parameters which are not.
 
-  The parameters which are not time-dependent are marked as static in their
-  definition, this means that they are marked as static when input to JAX,
-  which means that they are compile-time constants. This means that they cannot
-  be changed without recompilation.
-  """
+    The parameters which are not time-dependent are marked as static in their
+    definition, this means that they are marked as static when input to JAX,
+    which means that they are compile-time constants. This means that they cannot
+    be changed without recompilation.
+    """
 
-  edge: edge_runtime_params.RuntimeParams | None
-  mhd: mhd_runtime_params.RuntimeParams
-  neoclassical: neoclassical_params.RuntimeParams
-  numerics: numerics.RuntimeParams
-  pedestal: pedestal_model_params.RuntimeParams
-  plasma_composition: plasma_composition.RuntimeParams
-  profile_conditions: profile_conditions.RuntimeParams
-  solver: solver_params.RuntimeParams
-  sources: Mapping[str, sources_params.RuntimeParams]
-  transport: transport_model_params.RuntimeParams
-  time_step_calculator: time_step_calculator_runtime_params.RuntimeParams
+    edge: edge_runtime_params.RuntimeParams | None
+    mhd: mhd_runtime_params.RuntimeParams
+    neoclassical: neoclassical_params.RuntimeParams
+    numerics: numerics.RuntimeParams
+    pedestal: pedestal_model_params.RuntimeParams
+    plasma_composition: plasma_composition.RuntimeParams
+    profile_conditions: profile_conditions.RuntimeParams
+    solver: solver_params.RuntimeParams
+    sources: Mapping[str, sources_params.RuntimeParams]
+    transport: transport_model_params.RuntimeParams
+    time_step_calculator: time_step_calculator_runtime_params.RuntimeParams
 
 
 def make_ip_consistent(
     runtime_params: RuntimeParams,
     geo: geometry.Geometry,
 ) -> tuple[RuntimeParams, geometry.Geometry]:
-  """Fixes Ip to be the same across runtime_params and geo."""
-  if isinstance(geo, standard_geometry.StandardGeometry):
-    if geo.Ip_from_parameters:
-      # If Ip is from parameters, renormalise psi etc to match the Ip in the
-      # parameters.
-      param_Ip = runtime_params.profile_conditions.Ip
-      Ip_scale_factor = param_Ip / geo.Ip_profile_face[-1]
-      geo = dataclasses.replace(
-          geo,
-          Ip_profile_face=geo.Ip_profile_face * Ip_scale_factor,
-          psi_from_Ip=geo.psi_from_Ip * Ip_scale_factor,
-          psi_from_Ip_face=geo.psi_from_Ip_face * Ip_scale_factor,
-          j_total=geo.j_total * Ip_scale_factor,
-          j_total_face=geo.j_total_face * Ip_scale_factor,
-      )
-    else:
-      # If Ip is from the geometry, update the parameters to match.
-      runtime_params = dataclasses.replace(
-          runtime_params,
-          profile_conditions=dataclasses.replace(
-              runtime_params.profile_conditions,
-              Ip=geo.Ip_profile_face[-1],
-          ),
-      )
-  return runtime_params, geo
+    """Fixes Ip to be the same across runtime_params and geo."""
+    if isinstance(geo, standard_geometry.StandardGeometry):
+        if geo.Ip_from_parameters:
+            # If Ip is from parameters, renormalise psi etc to match the Ip in the
+            # parameters.
+            param_Ip = runtime_params.profile_conditions.Ip
+            Ip_scale_factor = param_Ip / geo.Ip_profile_face[-1]
+            geo = dataclasses.replace(
+                geo,
+                Ip_profile_face=geo.Ip_profile_face * Ip_scale_factor,
+                psi_from_Ip=geo.psi_from_Ip * Ip_scale_factor,
+                psi_from_Ip_face=geo.psi_from_Ip_face * Ip_scale_factor,
+                j_total=geo.j_total * Ip_scale_factor,
+                j_total_face=geo.j_total_face * Ip_scale_factor,
+            )
+        else:
+            # If Ip is from the geometry, update the parameters to match.
+            runtime_params = dataclasses.replace(
+                runtime_params,
+                profile_conditions=dataclasses.replace(
+                    runtime_params.profile_conditions,
+                    Ip=geo.Ip_profile_face[-1],
+                ),
+            )
+    return runtime_params, geo

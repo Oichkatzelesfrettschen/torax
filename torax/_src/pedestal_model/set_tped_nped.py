@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """A basic version of the pedestal model that uses direct specification."""
+
 import dataclasses
 
 import jax
@@ -21,7 +22,9 @@ from torax._src import state
 from torax._src.config import runtime_params as runtime_params_lib
 from torax._src.geometry import geometry
 from torax._src.pedestal_model import pedestal_model
-from torax._src.pedestal_model import runtime_params as pedestal_runtime_params_lib
+from torax._src.pedestal_model import (
+    runtime_params as pedestal_runtime_params_lib,
+)
 from typing_extensions import override
 
 
@@ -29,46 +32,46 @@ from typing_extensions import override
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams(pedestal_runtime_params_lib.RuntimeParams):
-  """Runtime params for the SetTemperatureDensityPedestalModel."""
+    """Runtime params for the SetTemperatureDensityPedestalModel."""
 
-  n_e_ped: array_typing.FloatScalar
-  T_i_ped: array_typing.FloatScalar
-  T_e_ped: array_typing.FloatScalar
-  rho_norm_ped_top: array_typing.FloatScalar
-  n_e_ped_is_fGW: array_typing.BoolScalar
+    n_e_ped: array_typing.FloatScalar
+    T_i_ped: array_typing.FloatScalar
+    T_e_ped: array_typing.FloatScalar
+    rho_norm_ped_top: array_typing.FloatScalar
+    n_e_ped_is_fGW: array_typing.BoolScalar
 
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class SetTemperatureDensityPedestalModel(pedestal_model.PedestalModel):
-  """A basic version of the pedestal model that uses direct specification."""
+    """A basic version of the pedestal model that uses direct specification."""
 
-  @override
-  def _call_implementation(
-      self,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles: state.CoreProfiles,
-  ) -> pedestal_model.PedestalModelOutput:
-    pedestal_params = runtime_params.pedestal
-    assert isinstance(pedestal_params, RuntimeParams)
-    nGW = (
-        runtime_params.profile_conditions.Ip
-        / 1e6  # Convert to MA.
-        / (jnp.pi * geo.a_minor**2)
-        * 1e20
-    )
-    # Calculate n_e_ped in m^-3.
-    n_e_ped = jnp.where(
-        pedestal_params.n_e_ped_is_fGW,
-        pedestal_params.n_e_ped * nGW,
-        pedestal_params.n_e_ped,
-    )
-    return pedestal_model.PedestalModelOutput(
-        n_e_ped=n_e_ped,
-        T_i_ped=pedestal_params.T_i_ped,
-        T_e_ped=pedestal_params.T_e_ped,
-        rho_norm_ped_top=pedestal_params.rho_norm_ped_top,
-        rho_norm_ped_top_idx=jnp.abs(
-            geo.rho_norm - pedestal_params.rho_norm_ped_top
-        ).argmin(),
-    )
+    @override
+    def _call_implementation(
+        self,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles: state.CoreProfiles,
+    ) -> pedestal_model.PedestalModelOutput:
+        pedestal_params = runtime_params.pedestal
+        assert isinstance(pedestal_params, RuntimeParams)
+        nGW = (
+            runtime_params.profile_conditions.Ip
+            / 1e6  # Convert to MA.
+            / (jnp.pi * geo.a_minor**2)
+            * 1e20
+        )
+        # Calculate n_e_ped in m^-3.
+        n_e_ped = jnp.where(
+            pedestal_params.n_e_ped_is_fGW,
+            pedestal_params.n_e_ped * nGW,
+            pedestal_params.n_e_ped,
+        )
+        return pedestal_model.PedestalModelOutput(
+            n_e_ped=n_e_ped,
+            T_i_ped=pedestal_params.T_i_ped,
+            T_e_ped=pedestal_params.T_e_ped,
+            rho_norm_ped_top=pedestal_params.rho_norm_ped_top,
+            rho_norm_ped_top_idx=jnp.abs(
+                geo.rho_norm - pedestal_params.rho_norm_ped_top
+            ).argmin(),
+        )

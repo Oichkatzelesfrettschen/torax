@@ -21,7 +21,7 @@ TORAX_VERSION: Final[str] = "1.2.0"
 
 
 def _version_as_tuple(version_str: str) -> tuple[int, int, int]:
-  return tuple(int(i) for i in version_str.split(".") if i.isdigit())
+    return tuple(int(i) for i in version_str.split(".") if i.isdigit())
 
 
 TORAX_VERSION_INFO: Final[tuple[int, int, int]] = _version_as_tuple(

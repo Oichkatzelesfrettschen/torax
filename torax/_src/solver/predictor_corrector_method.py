@@ -18,6 +18,7 @@ Picard iterations to approximate the nonlinear solution. If
 runtime_params_slice.solver.use_predictor_corrector is False, reverts to
 a standard linear solution.
 """
+
 import functools
 
 import jax
@@ -35,7 +36,7 @@ from torax._src.sources import source_profiles
 @functools.partial(
     jax.jit,
     static_argnames=[
-        'coeffs_callback',
+        "coeffs_callback",
     ],
 )
 def predictor_corrector_method(
@@ -49,63 +50,63 @@ def predictor_corrector_method(
     explicit_source_profiles: source_profiles.SourceProfiles,
     coeffs_callback: calc_coeffs.CoeffsCallback,
 ) -> tuple[cell_variable.CellVariable, ...]:
-  """Predictor-corrector method.
+    """Predictor-corrector method.
 
-  Args:
-    dt: current timestep
-    runtime_params_t_plus_dt: Runtime parameters corresponding to the next time
-      step, needed for the implicit PDE coefficients.
-    geo_t_plus_dt: Geometry at the next time step.
-    x_old: Tuple of CellVariables correspond to the evolving core profiles at
-      time t.
-    x_new_guess: Tuple of CellVariables corresponding to the initial guess for
-      the next time step.
-    core_profiles_t_plus_dt: Core profiles at the next time step.
-    coeffs_exp: Block1DCoeffs PDE coefficients at beginning of timestep.
-    explicit_source_profiles: Precomputed explicit source profiles. These
-      profiles were configured to always depend on state and parameters at time
-      t during the solver step. They can thus be inputs, since they are not
-      recalculated at time t+plus_dt with updated state during the solver
-      iterations. For sources that are implicit, their explicit profiles are set
-      to all zeros.
-    coeffs_callback: coefficient callback function.
+    Args:
+      dt: current timestep
+      runtime_params_t_plus_dt: Runtime parameters corresponding to the next time
+        step, needed for the implicit PDE coefficients.
+      geo_t_plus_dt: Geometry at the next time step.
+      x_old: Tuple of CellVariables correspond to the evolving core profiles at
+        time t.
+      x_new_guess: Tuple of CellVariables corresponding to the initial guess for
+        the next time step.
+      core_profiles_t_plus_dt: Core profiles at the next time step.
+      coeffs_exp: Block1DCoeffs PDE coefficients at beginning of timestep.
+      explicit_source_profiles: Precomputed explicit source profiles. These
+        profiles were configured to always depend on state and parameters at time
+        t during the solver step. They can thus be inputs, since they are not
+        recalculated at time t+plus_dt with updated state during the solver
+        iterations. For sources that are implicit, their explicit profiles are set
+        to all zeros.
+      coeffs_callback: coefficient callback function.
 
-  Returns:
-    x_new: Solution of evolving core profile state variables
-  """
-  solver_params = runtime_params_t_plus_dt.solver
+    Returns:
+      x_new: Solution of evolving core profile state variables
+    """
+    solver_params = runtime_params_t_plus_dt.solver
 
-  # predictor-corrector loop. Will only be traversed once if not in
-  # predictor-corrector mode
-  def loop_body(x_new_guess):
-    coeffs_new = coeffs_callback(
-        runtime_params_t_plus_dt,
-        geo_t_plus_dt,
-        core_profiles_t_plus_dt,
-        x_new_guess,
-        explicit_source_profiles=explicit_source_profiles,
-        allow_pereverzev=True,
-    )
+    # predictor-corrector loop. Will only be traversed once if not in
+    # predictor-corrector mode
+    def loop_body(x_new_guess):
+        coeffs_new = coeffs_callback(
+            runtime_params_t_plus_dt,
+            geo_t_plus_dt,
+            core_profiles_t_plus_dt,
+            x_new_guess,
+            explicit_source_profiles=explicit_source_profiles,
+            allow_pereverzev=True,
+        )
 
-    return implicit_solve_block.implicit_solve_block(
-        dt=dt,
-        x_old=x_old,
-        x_new_guess=x_new_guess,
-        coeffs_old=coeffs_exp,
-        coeffs_new=coeffs_new,
-        theta_implicit=solver_params.theta_implicit,
-        convection_dirichlet_mode=(solver_params.convection_dirichlet_mode),
-        convection_neumann_mode=(solver_params.convection_neumann_mode),
-    )
+        return implicit_solve_block.implicit_solve_block(
+            dt=dt,
+            x_old=x_old,
+            x_new_guess=x_new_guess,
+            coeffs_old=coeffs_exp,
+            coeffs_new=coeffs_new,
+            theta_implicit=solver_params.theta_implicit,
+            convection_dirichlet_mode=(solver_params.convection_dirichlet_mode),
+            convection_neumann_mode=(solver_params.convection_neumann_mode),
+        )
 
-  if solver_params.use_predictor_corrector:
-    x_new = jax_fixed_point.fixed_point(
-        loop_body,
-        x_new_guess,
-        maxiter=solver_params.n_corrector_steps + 1,
-        xtol=None,
-        method='iteration',
-    )
-  else:
-    x_new = loop_body(x_new_guess)
-  return x_new
+    if solver_params.use_predictor_corrector:
+        x_new = jax_fixed_point.fixed_point(
+            loop_body,
+            x_new_guess,
+            maxiter=solver_params.n_corrector_steps + 1,
+            xtol=None,
+            method="iteration",
+        )
+    else:
+        x_new = loop_body(x_new_guess)
+    return x_new

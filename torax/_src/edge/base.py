@@ -32,47 +32,47 @@ from torax._src.torax_pydantic import torax_pydantic
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class EdgeModelOutputs:
-  """Base class for outputs from an edge model.
+    """Base class for outputs from an edge model.
 
-  Attributes:
-    q_parallel: Parallel heat flux upstream [W/m^2].
-    q_perpendicular_target: Heat flux perpendicular to the target [W/m^2].
-    T_e_separatrix: Electron temperature at the separatrix [keV].
-    T_e_target: Electron temperature at sheath entrance [eV].
-    pressure_neutral_divertor: Neutral pressure in the divertor [Pa].
-  """
+    Attributes:
+      q_parallel: Parallel heat flux upstream [W/m^2].
+      q_perpendicular_target: Heat flux perpendicular to the target [W/m^2].
+      T_e_separatrix: Electron temperature at the separatrix [keV].
+      T_e_target: Electron temperature at sheath entrance [eV].
+      pressure_neutral_divertor: Neutral pressure in the divertor [Pa].
+    """
 
-  q_parallel: jax.Array
-  q_perpendicular_target: jax.Array
-  T_e_separatrix: jax.Array
-  T_e_target: jax.Array
-  pressure_neutral_divertor: jax.Array
+    q_parallel: jax.Array
+    q_perpendicular_target: jax.Array
+    T_e_separatrix: jax.Array
+    T_e_target: jax.Array
+    pressure_neutral_divertor: jax.Array
 
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class EdgeModel(static_dataclass.StaticDataclass, abc.ABC):
-  """Abstract base class for edge models."""
+    """Abstract base class for edge models."""
 
-  @abc.abstractmethod
-  def __call__(
-      self,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles: state.CoreProfiles,
-      core_sources: source_profiles_lib.SourceProfiles,
-  ) -> EdgeModelOutputs:
-    """Evaluates the edge model at the given time."""
+    @abc.abstractmethod
+    def __call__(
+        self,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles: state.CoreProfiles,
+        core_sources: source_profiles_lib.SourceProfiles,
+    ) -> EdgeModelOutputs:
+        """Evaluates the edge model at the given time."""
 
 
 class EdgeModelConfig(torax_pydantic.BaseModelFrozen, abc.ABC):
-  """Base pydantic configuration for all edge models."""
+    """Base pydantic configuration for all edge models."""
 
-  @abc.abstractmethod
-  def build_runtime_params(
-      self, t: chex.Numeric
-  ) -> edge_runtime_params.RuntimeParams:
-    """Builds the runtime parameters for the edge model at time t."""
+    @abc.abstractmethod
+    def build_runtime_params(
+        self, t: chex.Numeric
+    ) -> edge_runtime_params.RuntimeParams:
+        """Builds the runtime parameters for the edge model at time t."""
 
-  @abc.abstractmethod
-  def build_edge_model(self) -> EdgeModel:
-    """Builds an edge model from the config."""
+    @abc.abstractmethod
+    def build_edge_model(self) -> EdgeModel:
+        """Builds an edge model from the config."""

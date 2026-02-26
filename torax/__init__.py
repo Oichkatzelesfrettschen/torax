@@ -40,47 +40,47 @@ from torax._src.torax_pydantic.torax_pydantic import JAX_STATIC
 
 # pylint: enable=g-importing-member
 
-os.environ['XLA_FLAGS'] = (
-    os.environ.get('XLA_FLAGS', '')
-    + ' --xla_backend_extra_options=xla_cpu_flatten_after_fusion'
+os.environ["XLA_FLAGS"] = (
+    os.environ.get("XLA_FLAGS", "")
+    + " --xla_backend_extra_options=xla_cpu_flatten_after_fusion"
 )
 
 __version__ = version.TORAX_VERSION
 __version_info__ = version.TORAX_VERSION_INFO
 
 __all__ = [
-    'experimental',
-    'transport',
-    'build_torax_config_from_file',
-    'import_module',
-    'run_simulation',
-    'CoreProfiles',
-    'CoreTransport',
-    'Geometry',
-    'PedestalModelOutput',
-    'PostProcessedOutputs',
-    'RuntimeParams',
-    'SimError',
-    'SolverNumericOutputs',
-    'SourceProfiles',
-    'StateHistory',
-    'ToraxConfig',
-    'JAX_STATIC',
+    "experimental",
+    "transport",
+    "build_torax_config_from_file",
+    "import_module",
+    "run_simulation",
+    "CoreProfiles",
+    "CoreTransport",
+    "Geometry",
+    "PedestalModelOutput",
+    "PostProcessedOutputs",
+    "RuntimeParams",
+    "SimError",
+    "SolverNumericOutputs",
+    "SourceProfiles",
+    "StateHistory",
+    "ToraxConfig",
+    "JAX_STATIC",
 ]
 
 
 def set_jax_precision():
-  # Default TORAX JAX precision is f64
-  precision = os.getenv('JAX_PRECISION', 'f64')
-  assert precision == 'f64' or precision == 'f32', (
-      'Unknown JAX precision environment variable: %s' % precision
-  )
-  if precision == 'f64':
-    jax.config.update('jax_enable_x64', True)
+    # Default TORAX JAX precision is f64
+    precision = os.getenv("JAX_PRECISION", "f64")
+    assert precision == "f64" or precision == "f32", (
+        "Unknown JAX precision environment variable: %s" % precision
+    )
+    if precision == "f64":
+        jax.config.update("jax_enable_x64", True)
 
 
 def log_jax_backend():
-  logging.info('JAX running on a default %s backend', jax.default_backend())
+    logging.info("JAX running on a default %s backend", jax.default_backend())
 
 
 set_jax_precision()

@@ -25,17 +25,17 @@ from torax._src.sources import source as source_lib
 
 @dataclasses.dataclass(kw_only=True, frozen=True, eq=False)
 class ImpurityRadiationHeatSink(source_lib.Source):
-  """Impurity radiation heat sink for electron heat equation."""
+    """Impurity radiation heat sink for electron heat equation."""
 
-  SOURCE_NAME = "impurity_radiation"
-  model_func: source_lib.SourceProfileFunction
+    SOURCE_NAME = "impurity_radiation"
+    model_func: source_lib.SourceProfileFunction
 
-  @property
-  def source_name(self) -> str:
-    return self.SOURCE_NAME
+    @property
+    def source_name(self) -> str:
+        return self.SOURCE_NAME
 
-  @property
-  def affected_core_profiles(
-      self,
-  ) -> tuple[source_lib.AffectedCoreProfile, ...]:
-    return (source_lib.AffectedCoreProfile.TEMP_EL,)
+    @property
+    def affected_core_profiles(
+        self,
+    ) -> tuple[source_lib.AffectedCoreProfile, ...]:
+        return (source_lib.AffectedCoreProfile.TEMP_EL,)

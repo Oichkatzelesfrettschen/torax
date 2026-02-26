@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Runtime params for conductivity models."""
+
 import dataclasses
 
 import jax
@@ -20,4 +21,4 @@ import jax
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams:
-  """Base class for runtime params."""
+    """Base class for runtime params."""

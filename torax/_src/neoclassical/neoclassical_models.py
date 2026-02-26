@@ -14,24 +14,27 @@
 
 
 """Base classes for Neoclassical models."""
+
 import dataclasses
 
 from torax._src import static_dataclass
-from torax._src.neoclassical.bootstrap_current import base as bootstrap_current_base
+from torax._src.neoclassical.bootstrap_current import (
+    base as bootstrap_current_base,
+)
 from torax._src.neoclassical.conductivity import base as conductivity_base
 from torax._src.neoclassical.transport import base as transport_base
 
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class NeoclassicalModels(static_dataclass.StaticDataclass):
-  """Container for instantiated Neoclassical model objects.
+    """Container for instantiated Neoclassical model objects.
 
-  This class is intended for use as a static argument to jitted jax functions.
-  It is therefore immutable and supports comparison and hashing by value.
-  Because this class is not polymorphic, it does not need to hash the class
-  id, so the default frozen dataclass hashing works.
-  """
+    This class is intended for use as a static argument to jitted jax functions.
+    It is therefore immutable and supports comparison and hashing by value.
+    Because this class is not polymorphic, it does not need to hash the class
+    id, so the default frozen dataclass hashing works.
+    """
 
-  conductivity: conductivity_base.ConductivityModel
-  bootstrap_current: bootstrap_current_base.BootstrapCurrentModel
-  transport: transport_base.NeoclassicalTransportModel
+    conductivity: conductivity_base.ConductivityModel
+    bootstrap_current: bootstrap_current_base.BootstrapCurrentModel
+    transport: transport_base.NeoclassicalTransportModel

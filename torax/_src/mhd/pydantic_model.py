@@ -23,30 +23,32 @@ from torax._src.torax_pydantic import torax_pydantic
 
 
 class MHD(torax_pydantic.BaseModelFrozen):
-  """Config for MHD models.
+    """Config for MHD models.
 
-  Attributes:
-    sawtooth: Config for sawtooth models.
-  """
+    Attributes:
+      sawtooth: Config for sawtooth models.
+    """
 
-  sawtooth: sawtooth_pydantic_model.SawtoothConfig | None = pydantic.Field(
-      default=None
-  )
-
-  def build_mhd_models(self) -> base.MHDModels:
-    """Builds and returns a container with instantiated MHD model objects."""
-    sawtooth_model = (
-        None if self.sawtooth is None else self.sawtooth.build_models()
+    sawtooth: sawtooth_pydantic_model.SawtoothConfig | None = pydantic.Field(
+        default=None
     )
-    return base.MHDModels(sawtooth_models=sawtooth_model)
 
-  def build_runtime_params(
-      self, t: chex.Numeric
-  ) -> mhd_runtime_params.RuntimeParams:
-    """Builds and returns a container with runtime params for MHD models."""
+    def build_mhd_models(self) -> base.MHDModels:
+        """Builds and returns a container with instantiated MHD model objects."""
+        sawtooth_model = (
+            None if self.sawtooth is None else self.sawtooth.build_models()
+        )
+        return base.MHDModels(sawtooth_models=sawtooth_model)
 
-    return mhd_runtime_params.RuntimeParams(**{
-        mhd_model_name: mhd_model_config.build_runtime_params(t)
-        for mhd_model_name, mhd_model_config in self.__dict__.items()
-        if mhd_model_config is not None
-    })
+    def build_runtime_params(
+        self, t: chex.Numeric
+    ) -> mhd_runtime_params.RuntimeParams:
+        """Builds and returns a container with runtime params for MHD models."""
+
+        return mhd_runtime_params.RuntimeParams(
+            **{
+                mhd_model_name: mhd_model_config.build_runtime_params(t)
+                for mhd_model_name, mhd_model_config in self.__dict__.items()
+                if mhd_model_config is not None
+            }
+        )

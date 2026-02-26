@@ -38,19 +38,19 @@ FloatVectorFace: TypeAlias = jt.Float[Array, "rhon+1"]
 
 
 def jaxtyped(fn: T) -> T:
-  """Function and dataclass decorator to perform runtime type-checking.
+    """Function and dataclass decorator to perform runtime type-checking.
 
-  This will perform jaxtyping runtime type checking if the environment variable
-  `TORAX_JAXTYPING` is set to "true" (default is "false").
+    This will perform jaxtyping runtime type checking if the environment variable
+    `TORAX_JAXTYPING` is set to "true" (default is "false").
 
-  Args:
-    fn: The function to decorate.
+    Args:
+      fn: The function to decorate.
 
-  Returns:
-    The decorated function.
-  """
-  runtime_checking = jax_utils.env_bool(name="TORAX_JAXTYPING", default=False)
-  if runtime_checking:
-    return jt.jaxtyped(fn, typechecker=typeguard.typechecked)
-  else:
-    return fn
+    Returns:
+      The decorated function.
+    """
+    runtime_checking = jax_utils.env_bool(name="TORAX_JAXTYPING", default=False)
+    if runtime_checking:
+        return jt.jaxtyped(fn, typechecker=typeguard.typechecked)
+    else:
+        return fn

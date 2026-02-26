@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """JITted run_loop for iterating over the simulation step function."""
+
 import chex
 import jax
 import jax.numpy as jnp
@@ -25,7 +26,7 @@ from torax._src.orchestration import step_function
 from torax._src.output_tools import post_processing
 
 
-@jax.jit(static_argnames='max_steps')
+@jax.jit(static_argnames="max_steps")
 def run_loop_jit(
     step_fn: step_function.SimulationStepFn,
     max_steps: int,
@@ -35,84 +36,86 @@ def run_loop_jit(
 ) -> tuple[
     sim_state.SimState, post_processing.PostProcessedOutputs, chex.Numeric
 ]:
-  """Runs the simulation loop under jax.jit."""
-  initial_state, initial_post_processed_outputs = (
-      initial_state_lib.get_initial_state_and_post_processed_outputs(
-          step_fn=step_fn,
-          runtime_params_overrides=runtime_params_overrides,
-      )
-  )
-
-  # Pre-allocate history buffers
-  states_history = jax.tree_util.tree_map(
-      lambda x: jnp.zeros((max_steps + 1,) + x.shape, dtype=x.dtype),
-      initial_state,
-  )
-  post_processed_outputs_history = jax.tree_util.tree_map(
-      lambda x: jnp.zeros((max_steps + 1,) + x.shape, dtype=x.dtype),
-      initial_post_processed_outputs,
-  )
-
-  # Store initial state
-  states_history = jax.tree_util.tree_map(
-      lambda hist, val: hist.at[0].set(val), states_history, initial_state
-  )
-  post_processed_outputs_history = jax.tree_util.tree_map(
-      lambda hist, val: hist.at[0].set(val),
-      post_processed_outputs_history,
-      initial_post_processed_outputs,
-  )
-
-  def _cond_fun(inputs):
-    i, current_state, _, _, _ = inputs
-    is_done = step_fn.is_done(current_state.t)
-    return jnp.logical_and(i < max_steps, jnp.logical_not(is_done))
-
-  def _step_fn(inputs):
-    (
-        i,
-        previous_state,
-        previous_post_processed_outputs,
-        states_hist,
-        post_processed_outputs_hist,
-    ) = inputs
-    current_state, post_processed_outputs = step_fn(
-        previous_state,
-        previous_post_processed_outputs,
-        runtime_params_overrides=runtime_params_overrides,
-    )
-    states_hist = jax.tree_util.tree_map(
-        lambda hist, val: hist.at[i + 1].set(val), states_hist, current_state
-    )
-    post_processed_outputs_hist = jax.tree_util.tree_map(
-        lambda hist, val: hist.at[i + 1].set(val),
-        post_processed_outputs_hist,
-        post_processed_outputs,
-    )
-    return (
-        i + 1,
-        current_state,
-        post_processed_outputs,
-        states_hist,
-        post_processed_outputs_hist,
+    """Runs the simulation loop under jax.jit."""
+    initial_state, initial_post_processed_outputs = (
+        initial_state_lib.get_initial_state_and_post_processed_outputs(
+            step_fn=step_fn,
+            runtime_params_overrides=runtime_params_overrides,
+        )
     )
 
-  final_i, _, _, states_history, post_processed_outputs_history = (
-      jax_utils.while_loop_bounded(
-          _cond_fun,
-          _step_fn,
-          (
-              0,
-              initial_state,
-              initial_post_processed_outputs,
-              states_history,
-              post_processed_outputs_history,
-          ),
-          max_steps,
-      )
-  )
+    # Pre-allocate history buffers
+    states_history = jax.tree_util.tree_map(
+        lambda x: jnp.zeros((max_steps + 1,) + x.shape, dtype=x.dtype),
+        initial_state,
+    )
+    post_processed_outputs_history = jax.tree_util.tree_map(
+        lambda x: jnp.zeros((max_steps + 1,) + x.shape, dtype=x.dtype),
+        initial_post_processed_outputs,
+    )
 
-  return states_history, post_processed_outputs_history, final_i
+    # Store initial state
+    states_history = jax.tree_util.tree_map(
+        lambda hist, val: hist.at[0].set(val), states_history, initial_state
+    )
+    post_processed_outputs_history = jax.tree_util.tree_map(
+        lambda hist, val: hist.at[0].set(val),
+        post_processed_outputs_history,
+        initial_post_processed_outputs,
+    )
+
+    def _cond_fun(inputs):
+        i, current_state, _, _, _ = inputs
+        is_done = step_fn.is_done(current_state.t)
+        return jnp.logical_and(i < max_steps, jnp.logical_not(is_done))
+
+    def _step_fn(inputs):
+        (
+            i,
+            previous_state,
+            previous_post_processed_outputs,
+            states_hist,
+            post_processed_outputs_hist,
+        ) = inputs
+        current_state, post_processed_outputs = step_fn(
+            previous_state,
+            previous_post_processed_outputs,
+            runtime_params_overrides=runtime_params_overrides,
+        )
+        states_hist = jax.tree_util.tree_map(
+            lambda hist, val: hist.at[i + 1].set(val),
+            states_hist,
+            current_state,
+        )
+        post_processed_outputs_hist = jax.tree_util.tree_map(
+            lambda hist, val: hist.at[i + 1].set(val),
+            post_processed_outputs_hist,
+            post_processed_outputs,
+        )
+        return (
+            i + 1,
+            current_state,
+            post_processed_outputs,
+            states_hist,
+            post_processed_outputs_hist,
+        )
+
+    final_i, _, _, states_history, post_processed_outputs_history = (
+        jax_utils.while_loop_bounded(
+            _cond_fun,
+            _step_fn,
+            (
+                0,
+                initial_state,
+                initial_post_processed_outputs,
+                states_history,
+                post_processed_outputs_history,
+            ),
+            max_steps,
+        )
+    )
+
+    return states_history, post_processed_outputs_history, final_i
 
 
 def _unstack_pytree_history(
@@ -120,34 +123,34 @@ def _unstack_pytree_history(
     post_processed_outputs_history,
     final_i,
 ):
-  """Unstacks stacked JIT output into a list of unstacked outputs.
+    """Unstacks stacked JIT output into a list of unstacked outputs.
 
-  Args:
-    states_history: A PyTree where each leaf is a JAX array with shape
-      (max_steps + 1, ...) representing the history of that component over time.
-    post_processed_outputs_history: A PyTree where each leaf is a JAX array with
-      shape (max_steps + 1, ...) representing the history of that component over
-      time.
-    final_i: The actual number of steps taken in the simulation.
+    Args:
+      states_history: A PyTree where each leaf is a JAX array with shape
+        (max_steps + 1, ...) representing the history of that component over time.
+      post_processed_outputs_history: A PyTree where each leaf is a JAX array with
+        shape (max_steps + 1, ...) representing the history of that component over
+        time.
+      final_i: The actual number of steps taken in the simulation.
 
-  Returns:
-    A list of PyTrees, where each element of the list corresponds to
-    a time step [0, max_steps]. Each element of the list has the same
-    structure and leaf types as the original initial_state.
-  """
-  states_history_list = []
-  post_processed_outputs_history_list = []
-  for time_index in range(final_i + 1):
-    # Use tree_map to slice each leaf array at the current time step `i`
-    current_state = jax.tree_util.tree_map(
-        lambda x, i=time_index: x[i], states_history
-    )
-    states_history_list.append(current_state)
-    post_processed_output = jax.tree_util.tree_map(
-        lambda x, i=time_index: x[i], post_processed_outputs_history
-    )
-    post_processed_outputs_history_list.append(post_processed_output)
-  return states_history_list, post_processed_outputs_history_list
+    Returns:
+      A list of PyTrees, where each element of the list corresponds to
+      a time step [0, max_steps]. Each element of the list has the same
+      structure and leaf types as the original initial_state.
+    """
+    states_history_list = []
+    post_processed_outputs_history_list = []
+    for time_index in range(final_i + 1):
+        # Use tree_map to slice each leaf array at the current time step `i`
+        current_state = jax.tree_util.tree_map(
+            lambda x, i=time_index: x[i], states_history
+        )
+        states_history_list.append(current_state)
+        post_processed_output = jax.tree_util.tree_map(
+            lambda x, i=time_index: x[i], post_processed_outputs_history
+        )
+        post_processed_outputs_history_list.append(post_processed_output)
+    return states_history_list, post_processed_outputs_history_list
 
 
 def run_loop(
@@ -160,50 +163,52 @@ def run_loop(
     tuple[post_processing.PostProcessedOutputs, ...],
     state.SimError,
 ]:
-  """Version of torax._src.orchestration.run_loop that loops with jax.jit.
+    """Version of torax._src.orchestration.run_loop that loops with jax.jit.
 
-  Unlike the `run_loop` function, This does not support logging or progress bar.
+    Unlike the `run_loop` function, This does not support logging or progress bar.
 
-  Args:
-    step_fn: Callable which takes in ToraxSimState and outputs the ToraxSimState
-      after one timestep. Note that step_fn determines dt (how long the timestep
-      is). The state_history that run_simulation() outputs comes from these
-      ToraxSimState objects.
-    runtime_params_overrides: Optional runtime params overrides to use.
+    Args:
+      step_fn: Callable which takes in ToraxSimState and outputs the ToraxSimState
+        after one timestep. Note that step_fn determines dt (how long the timestep
+        is). The state_history that run_simulation() outputs comes from these
+        ToraxSimState objects.
+      runtime_params_overrides: Optional runtime params overrides to use.
 
-  Returns:
-    A tuple of:
-      - the simulation history, consisting of a tuple of ToraxSimState objects,
-        one for each time step. There are N+1 objects returned, where N is the
-        number of simulation steps taken. The first object in the tuple is for
-        the initial state. If the sim error state is 1, then a trunctated
-        simulation history is returned up until the last valid timestep.
-      - the post-processed outputs history, consisting of a tuple of
-        PostProcessedOutputs objects, one for each time step. There are N+1
-        objects returned, where N is the number of simulation steps taken. The
-        first object in the tuple is for the initial state. If the sim error
-        state is 1, then a trunctated simulation history is returned up until
-        the last valid timestep.
-      - The sim error state.
-  """
-  numerics = step_fn.runtime_params_provider.numerics
-  max_steps = int(
-      ((numerics.t_final - numerics.t_initial) / numerics.min_dt) / 1e5
-  )
-  states_history, post_processed_outputs_history, final_i = run_loop_jit(
-      step_fn,
-      max_steps,
-      runtime_params_overrides=runtime_params_overrides,
-  )
-  unstacked_states, unstacked_post_processed_outputs = _unstack_pytree_history(
-      states_history, post_processed_outputs_history, final_i
-  )
-  sim_error = step_fn.check_for_errors(
-      unstacked_states[-1],
-      unstacked_post_processed_outputs[-1],
-  )
-  return (
-      unstacked_states,
-      tuple(unstacked_post_processed_outputs),
-      sim_error,
-  )
+    Returns:
+      A tuple of:
+        - the simulation history, consisting of a tuple of ToraxSimState objects,
+          one for each time step. There are N+1 objects returned, where N is the
+          number of simulation steps taken. The first object in the tuple is for
+          the initial state. If the sim error state is 1, then a trunctated
+          simulation history is returned up until the last valid timestep.
+        - the post-processed outputs history, consisting of a tuple of
+          PostProcessedOutputs objects, one for each time step. There are N+1
+          objects returned, where N is the number of simulation steps taken. The
+          first object in the tuple is for the initial state. If the sim error
+          state is 1, then a trunctated simulation history is returned up until
+          the last valid timestep.
+        - The sim error state.
+    """
+    numerics = step_fn.runtime_params_provider.numerics
+    max_steps = int(
+        ((numerics.t_final - numerics.t_initial) / numerics.min_dt) / 1e5
+    )
+    states_history, post_processed_outputs_history, final_i = run_loop_jit(
+        step_fn,
+        max_steps,
+        runtime_params_overrides=runtime_params_overrides,
+    )
+    unstacked_states, unstacked_post_processed_outputs = (
+        _unstack_pytree_history(
+            states_history, post_processed_outputs_history, final_i
+        )
+    )
+    sim_error = step_fn.check_for_errors(
+        unstacked_states[-1],
+        unstacked_post_processed_outputs[-1],
+    )
+    return (
+        unstacked_states,
+        tuple(unstacked_post_processed_outputs),
+        sim_error,
+    )

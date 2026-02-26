@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Default configs for testing."""
+
 from typing import Any
 
 
 def get_default_config_dict() -> dict[str, Any]:
-  return {
-      'profile_conditions': {},
-      'plasma_composition': {},
-      'numerics': {},
-      'geometry': {'geometry_type': 'circular', 'n_rho': 4},
-      'sources': {},
-      'solver': {},
-      'transport': {},
-      'pedestal': {},
-  }
+    return {
+        "profile_conditions": {},
+        "plasma_composition": {},
+        "numerics": {},
+        "geometry": {"geometry_type": "circular", "n_rho": 4},
+        "sources": {},
+        "solver": {},
+        "transport": {},
+        "pedestal": {},
+    }

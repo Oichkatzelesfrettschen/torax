@@ -26,21 +26,21 @@ from torax._src.time_step_calculator import time_step_calculator
 
 
 class FixedTimeStepCalculator(time_step_calculator.TimeStepCalculator):
-  """TimeStepCalculator based on constant time steps."""
+    """TimeStepCalculator based on constant time steps."""
 
-  def _next_dt(
-      self,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles: state_module.CoreProfiles,
-      core_transport: state_module.CoreTransport,
-  ) -> jax.Array:
-    """Returns the fixed time step duration."""
-    del geo, core_profiles, core_transport
-    return jnp.array(runtime_params.numerics.fixed_dt)
+    def _next_dt(
+        self,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles: state_module.CoreProfiles,
+        core_transport: state_module.CoreTransport,
+    ) -> jax.Array:
+        """Returns the fixed time step duration."""
+        del geo, core_profiles, core_transport
+        return jnp.array(runtime_params.numerics.fixed_dt)
 
-  def __eq__(self, other) -> bool:
-    return isinstance(other, type(self))
+    def __eq__(self, other) -> bool:
+        return isinstance(other, type(self))
 
-  def __hash__(self) -> int:
-    return hash(type(self))
+    def __hash__(self) -> int:
+        return hash(type(self))

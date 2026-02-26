@@ -13,24 +13,25 @@
 # limitations under the License.
 
 """Pydantic config for restarting a simulation from a file."""
+
 import pydantic
 from torax._src.torax_pydantic import torax_pydantic
 
 
 class FileRestart(torax_pydantic.BaseModelFrozen):
-  """Pydantic config for restarting a simulation from a file.
+    """Pydantic config for restarting a simulation from a file.
 
-  Attributes:
-    filename: Path to an existing TORAX output file (netCDF format).
-    time: Time in output file to load as the new initial state.
-    do_restart: If True, perform the restart from the selected state.
-      If False, disable the restart and run the simulation as normal.
-    stitch: If True, concatenate the old and new simulation histories
-      in the resulting output file. If False, output file will only
-      contain the new history.
-  """
+    Attributes:
+      filename: Path to an existing TORAX output file (netCDF format).
+      time: Time in output file to load as the new initial state.
+      do_restart: If True, perform the restart from the selected state.
+        If False, disable the restart and run the simulation as normal.
+      stitch: If True, concatenate the old and new simulation histories
+        in the resulting output file. If False, output file will only
+        contain the new history.
+    """
 
-  filename: pydantic.FilePath
-  time: torax_pydantic.Second
-  do_restart: bool
-  stitch: bool
+    filename: pydantic.FilePath
+    time: torax_pydantic.Second
+    do_restart: bool
+    stitch: bool

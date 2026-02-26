@@ -44,63 +44,62 @@ def pre_step(
     source_profiles_lib.SourceProfiles,
     edge_base.EdgeModelOutputs | None,
 ]:
-  """Performs the pre-step operations for the step function."""
-  runtime_params_t, geo_t = (
-      build_runtime_params.get_consistent_runtime_params_and_geometry(
-          t=input_state.t,
-          runtime_params_provider=runtime_params_provider,
-          geometry_provider=geometry_provider,
-          edge_outputs=input_state.edge_outputs,
-      )
-  )
-
-  # This only computes sources set to explicit in the
-  # SourceConfig.
-  explicit_source_profiles = source_profile_builders.build_source_profiles(
-      runtime_params=runtime_params_t,
-      geo=geo_t,
-      core_profiles=input_state.core_profiles,
-      source_models=physics_models.source_models,
-      neoclassical_models=physics_models.neoclassical_models,
-      explicit=True,
-  )
-
-  # Execute the edge model if one is configured. The edge model uses the state
-  # at time t to calculate new edge conditions for the next time step.
-  edge_model = physics_models.edge_model
-  if edge_model is not None:
-
-    # Update core sources with any newly calculated explicit sources.
-    # This is because in input_state, the sources are those which were
-    # used to compute the state. For explicit sources, these were computed with
-    # core_profiles at time t_minus_dt, whereas the implicit sources are
-    # consistent with time t. For the edge model, we want all sources consistent
-    # with the state at time t, so we replace the explicit sources with the
-    # newly calculated profiles.
-    core_sources = dataclasses.replace(
-        input_state.core_sources,
-        T_e=input_state.core_sources.T_e | explicit_source_profiles.T_e,
-        T_i=input_state.core_sources.T_i | explicit_source_profiles.T_i,
-        n_e=input_state.core_sources.n_e | explicit_source_profiles.n_e,
-        psi=input_state.core_sources.psi | explicit_source_profiles.psi,
+    """Performs the pre-step operations for the step function."""
+    runtime_params_t, geo_t = (
+        build_runtime_params.get_consistent_runtime_params_and_geometry(
+            t=input_state.t,
+            runtime_params_provider=runtime_params_provider,
+            geometry_provider=geometry_provider,
+            edge_outputs=input_state.edge_outputs,
+        )
     )
-    edge_outputs = edge_model(
-        runtime_params_t,
-        geo_t,
-        input_state.core_profiles,
-        core_sources,
-    )
-  else:
-    edge_outputs = None
 
-  return runtime_params_t, geo_t, explicit_source_profiles, edge_outputs
+    # This only computes sources set to explicit in the
+    # SourceConfig.
+    explicit_source_profiles = source_profile_builders.build_source_profiles(
+        runtime_params=runtime_params_t,
+        geo=geo_t,
+        core_profiles=input_state.core_profiles,
+        source_models=physics_models.source_models,
+        neoclassical_models=physics_models.neoclassical_models,
+        explicit=True,
+    )
+
+    # Execute the edge model if one is configured. The edge model uses the state
+    # at time t to calculate new edge conditions for the next time step.
+    edge_model = physics_models.edge_model
+    if edge_model is not None:
+        # Update core sources with any newly calculated explicit sources.
+        # This is because in input_state, the sources are those which were
+        # used to compute the state. For explicit sources, these were computed with
+        # core_profiles at time t_minus_dt, whereas the implicit sources are
+        # consistent with time t. For the edge model, we want all sources consistent
+        # with the state at time t, so we replace the explicit sources with the
+        # newly calculated profiles.
+        core_sources = dataclasses.replace(
+            input_state.core_sources,
+            T_e=input_state.core_sources.T_e | explicit_source_profiles.T_e,
+            T_i=input_state.core_sources.T_i | explicit_source_profiles.T_i,
+            n_e=input_state.core_sources.n_e | explicit_source_profiles.n_e,
+            psi=input_state.core_sources.psi | explicit_source_profiles.psi,
+        )
+        edge_outputs = edge_model(
+            runtime_params_t,
+            geo_t,
+            input_state.core_profiles,
+            core_sources,
+        )
+    else:
+        edge_outputs = None
+
+    return runtime_params_t, geo_t, explicit_source_profiles, edge_outputs
 
 
 @functools.partial(
     jax.jit,
     static_argnames=[
-        'physics_models',
-        'evolving_names',
+        "physics_models",
+        "evolving_names",
     ],
 )
 def finalize_outputs(
@@ -118,45 +117,45 @@ def finalize_outputs(
     evolving_names: tuple[str, ...],
     input_post_processed_outputs: post_processing.PostProcessedOutputs,
 ) -> tuple[sim_state.SimState, post_processing.PostProcessedOutputs]:
-  """Returns the final state and post-processed outputs."""
-  final_core_profiles, final_source_profiles = (
-      updaters.update_core_and_source_profiles_after_step(
-          dt=dt,
-          x_new=x_new,
-          runtime_params_t_plus_dt=runtime_params_t_plus_dt,
-          geo=geometry_t_plus_dt,
-          core_profiles_t=core_profiles_t,
-          core_profiles_t_plus_dt=core_profiles_t_plus_dt,
-          explicit_source_profiles=explicit_source_profiles,
-          source_models=physics_models.source_models,
-          neoclassical_models=physics_models.neoclassical_models,
-          evolving_names=evolving_names,
-      )
-  )
-  final_total_transport = (
-      transport_coefficients_builder.calculate_total_transport_coeffs(
-          physics_models.pedestal_model,
-          physics_models.transport_model,
-          physics_models.neoclassical_models,
-          runtime_params_t_plus_dt,
-          geometry_t_plus_dt,
-          final_core_profiles,
-      )
-  )
+    """Returns the final state and post-processed outputs."""
+    final_core_profiles, final_source_profiles = (
+        updaters.update_core_and_source_profiles_after_step(
+            dt=dt,
+            x_new=x_new,
+            runtime_params_t_plus_dt=runtime_params_t_plus_dt,
+            geo=geometry_t_plus_dt,
+            core_profiles_t=core_profiles_t,
+            core_profiles_t_plus_dt=core_profiles_t_plus_dt,
+            explicit_source_profiles=explicit_source_profiles,
+            source_models=physics_models.source_models,
+            neoclassical_models=physics_models.neoclassical_models,
+            evolving_names=evolving_names,
+        )
+    )
+    final_total_transport = (
+        transport_coefficients_builder.calculate_total_transport_coeffs(
+            physics_models.pedestal_model,
+            physics_models.transport_model,
+            physics_models.neoclassical_models,
+            runtime_params_t_plus_dt,
+            geometry_t_plus_dt,
+            final_core_profiles,
+        )
+    )
 
-  output_state = sim_state.SimState(
-      t=t + dt,
-      dt=dt,
-      core_profiles=final_core_profiles,
-      core_sources=final_source_profiles,
-      core_transport=final_total_transport,
-      geometry=geometry_t_plus_dt,
-      solver_numeric_outputs=solver_numeric_outputs,
-      edge_outputs=edge_outputs,
-  )
-  post_processed_outputs = post_processing.make_post_processed_outputs(
-      sim_state=output_state,
-      runtime_params=runtime_params_t_plus_dt,
-      previous_post_processed_outputs=input_post_processed_outputs,
-  )
-  return output_state, post_processed_outputs
+    output_state = sim_state.SimState(
+        t=t + dt,
+        dt=dt,
+        core_profiles=final_core_profiles,
+        core_sources=final_source_profiles,
+        core_transport=final_total_transport,
+        geometry=geometry_t_plus_dt,
+        solver_numeric_outputs=solver_numeric_outputs,
+        edge_outputs=edge_outputs,
+    )
+    post_processed_outputs = post_processing.make_post_processed_outputs(
+        sim_state=output_state,
+        runtime_params=runtime_params_t_plus_dt,
+        previous_post_processed_outputs=input_post_processed_outputs,
+    )
+    return output_state, post_processed_outputs

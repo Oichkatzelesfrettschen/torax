@@ -16,6 +16,7 @@
 
 The pedestal model calculates quantities relevant to the pedestal.
 """
+
 import abc
 import dataclasses
 
@@ -34,51 +35,53 @@ from torax._src.geometry import geometry
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class PedestalModelOutput:
-  """Output of the PedestalModel."""
+    """Output of the PedestalModel."""
 
-  # The location of the pedestal.
-  rho_norm_ped_top: array_typing.FloatScalar
-  # The index of the pedestal in rho_norm.
-  rho_norm_ped_top_idx: array_typing.IntScalar
-  # The ion temperature at the pedestal.
-  T_i_ped: array_typing.FloatScalar
-  # The electron temperature at the pedestal.
-  T_e_ped: array_typing.FloatScalar
-  # The electron density at the pedestal in units 10^-3.
-  n_e_ped: array_typing.FloatScalar
+    # The location of the pedestal.
+    rho_norm_ped_top: array_typing.FloatScalar
+    # The index of the pedestal in rho_norm.
+    rho_norm_ped_top_idx: array_typing.IntScalar
+    # The ion temperature at the pedestal.
+    T_i_ped: array_typing.FloatScalar
+    # The electron temperature at the pedestal.
+    T_e_ped: array_typing.FloatScalar
+    # The electron density at the pedestal in units 10^-3.
+    n_e_ped: array_typing.FloatScalar
 
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class PedestalModel(static_dataclass.StaticDataclass, abc.ABC):
-  """Calculates temperature and density of the pedestal."""
+    """Calculates temperature and density of the pedestal."""
 
-  def __call__(
-      self,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles: state.CoreProfiles,
-  ) -> PedestalModelOutput:
-    return jax.lax.cond(
-        runtime_params.pedestal.set_pedestal,
-        lambda: self._call_implementation(runtime_params, geo, core_profiles),
-        # Set the pedestal location to infinite to indicate that the pedestal is
-        # not present.
-        # Set the index to outside of bounds of the mesh to indicate that the
-        # pedestal is not present.
-        lambda: PedestalModelOutput(
-            rho_norm_ped_top=jnp.inf,
-            T_i_ped=0.0,
-            T_e_ped=0.0,
-            n_e_ped=0.0,
-            rho_norm_ped_top_idx=geo.torax_mesh.nx,
-        ),
-    )
+    def __call__(
+        self,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles: state.CoreProfiles,
+    ) -> PedestalModelOutput:
+        return jax.lax.cond(
+            runtime_params.pedestal.set_pedestal,
+            lambda: self._call_implementation(
+                runtime_params, geo, core_profiles
+            ),
+            # Set the pedestal location to infinite to indicate that the pedestal is
+            # not present.
+            # Set the index to outside of bounds of the mesh to indicate that the
+            # pedestal is not present.
+            lambda: PedestalModelOutput(
+                rho_norm_ped_top=jnp.inf,
+                T_i_ped=0.0,
+                T_e_ped=0.0,
+                n_e_ped=0.0,
+                rho_norm_ped_top_idx=geo.torax_mesh.nx,
+            ),
+        )
 
-  @abc.abstractmethod
-  def _call_implementation(
-      self,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles: state.CoreProfiles,
-  ) -> PedestalModelOutput:
-    """Calculate the pedestal values."""
+    @abc.abstractmethod
+    def _call_implementation(
+        self,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles: state.CoreProfiles,
+    ) -> PedestalModelOutput:
+        """Calculate the pedestal values."""

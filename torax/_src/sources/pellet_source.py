@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Pellet source for the n_e equation."""
+
 import dataclasses
 from typing import Annotated, ClassVar, Literal
 import chex
@@ -31,7 +32,7 @@ from torax._src.torax_pydantic import torax_pydantic
 # Default value for the model function to be used for the pellet source
 # source. This is also used as an identifier for the model function in
 # the default source config for Pydantic to "discriminate" against.
-DEFAULT_MODEL_FUNCTION_NAME: str = 'gaussian'
+DEFAULT_MODEL_FUNCTION_NAME: str = "gaussian"
 
 
 # pylint: disable=invalid-name
@@ -43,89 +44,91 @@ def calc_pellet_source(
     unused_calculated_source_profiles: source_profiles.SourceProfiles | None,
     unused_conductivity: conductivity_base.Conductivity | None,
 ) -> tuple[array_typing.FloatVectorCell, ...]:
-  """Calculates external source term for n from pellets."""
-  source_params = runtime_params.sources[source_name]
-  assert isinstance(source_params, RuntimeParams)
-  return (
-      formulas.gaussian_profile(
-          center=source_params.pellet_deposition_location,
-          width=source_params.pellet_width,
-          total=source_params.S_total,
-          geo=geo,
-      ),
-  )
+    """Calculates external source term for n from pellets."""
+    source_params = runtime_params.sources[source_name]
+    assert isinstance(source_params, RuntimeParams)
+    return (
+        formulas.gaussian_profile(
+            center=source_params.pellet_deposition_location,
+            width=source_params.pellet_width,
+            total=source_params.S_total,
+            geo=geo,
+        ),
+    )
 
 
 @dataclasses.dataclass(kw_only=True, frozen=True, eq=False)
 class PelletSource(source.Source):
-  """Pellet source for the n_e equation."""
+    """Pellet source for the n_e equation."""
 
-  SOURCE_NAME: ClassVar[str] = 'pellet'
-  model_func: source.SourceProfileFunction = calc_pellet_source
+    SOURCE_NAME: ClassVar[str] = "pellet"
+    model_func: source.SourceProfileFunction = calc_pellet_source
 
-  @property
-  def source_name(self) -> str:
-    return self.SOURCE_NAME
+    @property
+    def source_name(self) -> str:
+        return self.SOURCE_NAME
 
-  @property
-  def affected_core_profiles(self) -> tuple[source.AffectedCoreProfile, ...]:
-    return (source.AffectedCoreProfile.NE,)
+    @property
+    def affected_core_profiles(self) -> tuple[source.AffectedCoreProfile, ...]:
+        return (source.AffectedCoreProfile.NE,)
 
 
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams(sources_runtime_params_lib.RuntimeParams):
-  pellet_width: array_typing.FloatScalar
-  pellet_deposition_location: array_typing.FloatScalar
-  S_total: array_typing.FloatScalar
+    pellet_width: array_typing.FloatScalar
+    pellet_deposition_location: array_typing.FloatScalar
+    S_total: array_typing.FloatScalar
 
 
 class PelletSourceConfig(base.SourceModelBase):
-  """Pellet source for the n_e equation.
+    """Pellet source for the n_e equation.
 
-  Attributes:
-    pellet_width: Gaussian width of pellet deposition [normalized radial coord]
-    pellet_deposition_location: Gaussian center of pellet deposition [normalized
-      radial coord]
-    S_total: total pellet particles/s
-    mode: Defines how the source values are computed (from a model, from a file,
-      etc.)
-  """
+    Attributes:
+      pellet_width: Gaussian width of pellet deposition [normalized radial coord]
+      pellet_deposition_location: Gaussian center of pellet deposition [normalized
+        radial coord]
+      S_total: total pellet particles/s
+      mode: Defines how the source values are computed (from a model, from a file,
+        etc.)
+    """
 
-  model_name: Annotated[Literal['gaussian'], torax_pydantic.JAX_STATIC] = (
-      'gaussian'
-  )
-  pellet_width: torax_pydantic.TimeVaryingScalar = (
-      torax_pydantic.ValidatedDefault(0.1)
-  )
-  pellet_deposition_location: torax_pydantic.TimeVaryingScalar = (
-      torax_pydantic.ValidatedDefault(0.85)
-  )
-  S_total: torax_pydantic.TimeVaryingScalar = torax_pydantic.ValidatedDefault(
-      2e22
-  )
-  mode: Annotated[
-      sources_runtime_params_lib.Mode, torax_pydantic.JAX_STATIC
-  ] = sources_runtime_params_lib.Mode.MODEL_BASED
-
-  @property
-  def model_func(self) -> source.SourceProfileFunction:
-    return calc_pellet_source
-
-  def build_runtime_params(
-      self,
-      t: chex.Numeric,
-  ) -> RuntimeParams:
-    return RuntimeParams(
-        prescribed_values=tuple(
-            [v.get_value(t) for v in self.prescribed_values]
-        ),
-        mode=self.mode,
-        is_explicit=self.is_explicit,
-        pellet_width=self.pellet_width.get_value(t),
-        pellet_deposition_location=self.pellet_deposition_location.get_value(t),
-        S_total=self.S_total.get_value(t),
+    model_name: Annotated[Literal["gaussian"], torax_pydantic.JAX_STATIC] = (
+        "gaussian"
     )
+    pellet_width: torax_pydantic.TimeVaryingScalar = (
+        torax_pydantic.ValidatedDefault(0.1)
+    )
+    pellet_deposition_location: torax_pydantic.TimeVaryingScalar = (
+        torax_pydantic.ValidatedDefault(0.85)
+    )
+    S_total: torax_pydantic.TimeVaryingScalar = torax_pydantic.ValidatedDefault(
+        2e22
+    )
+    mode: Annotated[
+        sources_runtime_params_lib.Mode, torax_pydantic.JAX_STATIC
+    ] = sources_runtime_params_lib.Mode.MODEL_BASED
 
-  def build_source(self) -> PelletSource:
-    return PelletSource(model_func=self.model_func)
+    @property
+    def model_func(self) -> source.SourceProfileFunction:
+        return calc_pellet_source
+
+    def build_runtime_params(
+        self,
+        t: chex.Numeric,
+    ) -> RuntimeParams:
+        return RuntimeParams(
+            prescribed_values=tuple(
+                [v.get_value(t) for v in self.prescribed_values]
+            ),
+            mode=self.mode,
+            is_explicit=self.is_explicit,
+            pellet_width=self.pellet_width.get_value(t),
+            pellet_deposition_location=self.pellet_deposition_location.get_value(
+                t
+            ),
+            S_total=self.S_total.get_value(t),
+        )
+
+    def build_source(self) -> PelletSource:
+        return PelletSource(model_func=self.model_func)

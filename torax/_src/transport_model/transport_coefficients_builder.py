@@ -13,13 +13,16 @@
 # limitations under the License.
 
 """Code to build the combined transport coefficients for a simulation."""
+
 import dataclasses
 
 import jax
 from torax._src import state
 from torax._src.config import runtime_params as runtime_params_lib
 from torax._src.geometry import geometry
-from torax._src.neoclassical import neoclassical_models as neoclassical_models_lib
+from torax._src.neoclassical import (
+    neoclassical_models as neoclassical_models_lib,
+)
 from torax._src.pedestal_model import pedestal_model as pedestal_model_lib
 from torax._src.transport_model import transport_model as transport_model_lib
 
@@ -33,21 +36,21 @@ def calculate_total_transport_coeffs(
     geo: geometry.Geometry,
     core_profiles: state.CoreProfiles,
 ) -> state.CoreTransport:
-  """Calculates the transport coefficients."""
-  pedestal_model_output = pedestal_model(runtime_params, geo, core_profiles)
-  turbulent_transport = transport_model(
-      runtime_params=runtime_params,
-      geo=geo,
-      core_profiles=core_profiles,
-      pedestal_model_output=pedestal_model_output,
-  )
-  neoclassical_transport_coeffs = neoclassical_models.transport(
-      runtime_params,
-      geo,
-      core_profiles,
-  )
+    """Calculates the transport coefficients."""
+    pedestal_model_output = pedestal_model(runtime_params, geo, core_profiles)
+    turbulent_transport = transport_model(
+        runtime_params=runtime_params,
+        geo=geo,
+        core_profiles=core_profiles,
+        pedestal_model_output=pedestal_model_output,
+    )
+    neoclassical_transport_coeffs = neoclassical_models.transport(
+        runtime_params,
+        geo,
+        core_profiles,
+    )
 
-  return state.CoreTransport(
-      **dataclasses.asdict(turbulent_transport),
-      **dataclasses.asdict(neoclassical_transport_coeffs),
-  )
+    return state.CoreTransport(
+        **dataclasses.asdict(turbulent_transport),
+        **dataclasses.asdict(neoclassical_transport_coeffs),
+    )

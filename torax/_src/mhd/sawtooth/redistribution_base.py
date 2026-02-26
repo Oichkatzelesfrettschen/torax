@@ -29,34 +29,34 @@ from torax._src.torax_pydantic import torax_pydantic
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class RedistributionModel(static_dataclass.StaticDataclass, abc.ABC):
-  """Abstract base class for sawtooth redistribution models."""
+    """Abstract base class for sawtooth redistribution models."""
 
-  @abc.abstractmethod
-  def __call__(
-      self,
-      rho_norm_q1: array_typing.FloatScalar,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles_t: state.CoreProfiles,
-  ) -> state.CoreProfiles:
-    """Returns a redistributed core_profiles if sawtooth has been triggered."""
+    @abc.abstractmethod
+    def __call__(
+        self,
+        rho_norm_q1: array_typing.FloatScalar,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles_t: state.CoreProfiles,
+    ) -> state.CoreProfiles:
+        """Returns a redistributed core_profiles if sawtooth has been triggered."""
 
 
 class RedistributionConfig(torax_pydantic.BaseModelFrozen):
-  """Base config for all redistribution models.
+    """Base config for all redistribution models.
 
-  Attributes:
-    flattening_factor: The factor by which the profile is flattened.
-    Default is near 1.0 but not exactly 1.0, to avoid zero-gradients.
-  """
+    Attributes:
+      flattening_factor: The factor by which the profile is flattened.
+      Default is near 1.0 but not exactly 1.0, to avoid zero-gradients.
+    """
 
-  flattening_factor: torax_pydantic.TimeVaryingScalar = (
-      torax_pydantic.ValidatedDefault(1.01)
-  )
-
-  def build_runtime_params(
-      self, t: chex.Numeric
-  ) -> sawtooth_runtime_params.RedistributionRuntimeParams:
-    return sawtooth_runtime_params.RedistributionRuntimeParams(
-        flattening_factor=self.flattening_factor.get_value(t),
+    flattening_factor: torax_pydantic.TimeVaryingScalar = (
+        torax_pydantic.ValidatedDefault(1.01)
     )
+
+    def build_runtime_params(
+        self, t: chex.Numeric
+    ) -> sawtooth_runtime_params.RedistributionRuntimeParams:
+        return sawtooth_runtime_params.RedistributionRuntimeParams(
+            flattening_factor=self.flattening_factor.get_value(t),
+        )

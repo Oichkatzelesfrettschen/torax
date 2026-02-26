@@ -1,4 +1,3 @@
-
 # Copyright 2024 DeepMind Technologies Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Useful functions for working with paths in TORAX."""
+
 import pathlib
 
 
 def torax_path() -> pathlib.Path:
-  """Returns the absolute path to the Torax directory."""
+    """Returns the absolute path to the Torax directory."""
 
-  path = pathlib.Path(__file__).parent.parent
-  assert path.is_dir(), f'Path {path} is not a directory.'
-  assert path.parts[-1] == 'torax', f'Path {path} is not a Torax directory.'
-  return path
+    path = pathlib.Path(__file__).parent.parent
+    assert path.is_dir(), f"Path {path} is not a directory."
+    assert path.parts[-1] == "torax", f"Path {path} is not a Torax directory."
+    return path

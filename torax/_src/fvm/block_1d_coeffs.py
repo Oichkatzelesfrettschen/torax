@@ -42,51 +42,52 @@ AuxiliaryOutput: TypeAlias = Any
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class Block1DCoeffs:
-  # pyformat: disable  # pyformat removes line breaks needed for readability
-  """The coefficients of coupled 1D fluid dynamics PDEs.
+    # pyformat: disable  # pyformat removes line breaks needed for readability
+    """The coefficients of coupled 1D fluid dynamics PDEs.
 
-  The differential equation is:
-  transient_out_coeff partial x transient_in_coeff / partial t = F
-  where F =
-  divergence(diffusion_coeff * grad(x))
-  - divergence(convection_coeff * x)
-  + source_mat_coeffs * u
-  + sources.
+    The differential equation is:
+    transient_out_coeff partial x transient_in_coeff / partial t = F
+    where F =
+    divergence(diffusion_coeff * grad(x))
+    - divergence(convection_coeff * x)
+    + source_mat_coeffs * u
+    + sources.
 
-  source_mat_coeffs exists for specific classes of sources where this
-  decomposition is valid, allowing x to be treated implicitly in linear solvers,
-  even if source_mat_coeffs contains state-dependent terms
+    source_mat_coeffs exists for specific classes of sources where this
+    decomposition is valid, allowing x to be treated implicitly in linear solvers,
+    even if source_mat_coeffs contains state-dependent terms
 
-  This class captures a snapshot of the coefficients of the equation at one
-  instant in time, discretized spatially across a mesh.
+    This class captures a snapshot of the coefficients of the equation at one
+    instant in time, discretized spatially across a mesh.
 
-  This class imposes the following structure on the problem:
-  - It assumes the variables are arranged on a 1-D, evenly spaced grid.
-  - It assumes the x variable is broken up into "channels," so the resulting
-  matrix equation has one block per channel.
+    This class imposes the following structure on the problem:
+    - It assumes the variables are arranged on a 1-D, evenly spaced grid.
+    - It assumes the x variable is broken up into "channels," so the resulting
+    matrix equation has one block per channel.
 
-  Attributes:
-    transient_out_cell: Tuple with one entry per channel, transient_out_cell[i]
-      gives the transient coefficients outside the time derivative for channel i
-      on the cell grid.
-    transient_in_cell: Tuple with one entry per channel, transient_in_cell[i]
-      gives the transient coefficients inside the time derivative for channel i
-      on the cell grid.
-    d_face: Tuple, with d_face[i] containing diffusion term coefficients for
-      channel i on the face grid.
-    v_face: Tuple, with v_face[i] containing convection term coefficients for
-      channel i on the face grid.
-    source_mat_cell: 2-D matrix of Tuples, with source_mat_cell[i][j] adding to
-      block-row i a term of the form source_cell[j] * u[channel j]. Depending on
-      the source runtime_params, may be constant values for a timestep, or
-      updated iteratively with new states in a nonlinear solver
-    source_cell: Additional source terms on the cell grid for each channel.
-      Depending on the source runtime_params, may be constant values for a
-      timestep, or updated iteratively with new states in a nonlinear solver
-  """
-  transient_in_cell: tuple[jax.Array, ...]
-  transient_out_cell: tuple[jax.Array, ...] | None = None
-  d_face: tuple[jax.Array, ...] | None = None
-  v_face: tuple[jax.Array, ...] | None = None
-  source_mat_cell: OptionalTupleMatrix = None
-  source_cell: tuple[jax.Array | None, ...] | None = None
+    Attributes:
+      transient_out_cell: Tuple with one entry per channel, transient_out_cell[i]
+        gives the transient coefficients outside the time derivative for channel i
+        on the cell grid.
+      transient_in_cell: Tuple with one entry per channel, transient_in_cell[i]
+        gives the transient coefficients inside the time derivative for channel i
+        on the cell grid.
+      d_face: Tuple, with d_face[i] containing diffusion term coefficients for
+        channel i on the face grid.
+      v_face: Tuple, with v_face[i] containing convection term coefficients for
+        channel i on the face grid.
+      source_mat_cell: 2-D matrix of Tuples, with source_mat_cell[i][j] adding to
+        block-row i a term of the form source_cell[j] * u[channel j]. Depending on
+        the source runtime_params, may be constant values for a timestep, or
+        updated iteratively with new states in a nonlinear solver
+      source_cell: Additional source terms on the cell grid for each channel.
+        Depending on the source runtime_params, may be constant values for a
+        timestep, or updated iteratively with new states in a nonlinear solver
+    """
+
+    transient_in_cell: tuple[jax.Array, ...]
+    transient_out_cell: tuple[jax.Array, ...] | None = None
+    d_face: tuple[jax.Array, ...] | None = None
+    v_face: tuple[jax.Array, ...] | None = None
+    source_mat_cell: OptionalTupleMatrix = None
+    source_cell: tuple[jax.Array | None, ...] | None = None

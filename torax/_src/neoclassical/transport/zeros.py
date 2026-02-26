@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Zeros model for neoclassical transport."""
+
 from typing import Annotated, Literal
 
 import jax.numpy as jnp
@@ -24,35 +25,35 @@ from typing_extensions import override
 
 
 class ZerosModel(base.NeoclassicalTransportModel):
-  """Zeros model for neoclassical transport."""
+    """Zeros model for neoclassical transport."""
 
-  @override
-  def _call_implementation(
-      self,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geometry: geometry_lib.Geometry,
-      core_profiles: state.CoreProfiles,
-  ) -> base.NeoclassicalTransport:
-    """Calculates neoclassical transport."""
-    return base.NeoclassicalTransport(
-        chi_neo_i=jnp.zeros_like(geometry.rho_face),
-        chi_neo_e=jnp.zeros_like(geometry.rho_face),
-        D_neo_e=jnp.zeros_like(geometry.rho_face),
-        V_neo_e=jnp.zeros_like(geometry.rho_face),
-        V_neo_ware_e=jnp.zeros_like(geometry.rho_face),
-    )
+    @override
+    def _call_implementation(
+        self,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geometry: geometry_lib.Geometry,
+        core_profiles: state.CoreProfiles,
+    ) -> base.NeoclassicalTransport:
+        """Calculates neoclassical transport."""
+        return base.NeoclassicalTransport(
+            chi_neo_i=jnp.zeros_like(geometry.rho_face),
+            chi_neo_e=jnp.zeros_like(geometry.rho_face),
+            D_neo_e=jnp.zeros_like(geometry.rho_face),
+            V_neo_e=jnp.zeros_like(geometry.rho_face),
+            V_neo_ware_e=jnp.zeros_like(geometry.rho_face),
+        )
 
-  def __eq__(self, other) -> bool:
-    return isinstance(other, self.__class__)
+    def __eq__(self, other) -> bool:
+        return isinstance(other, self.__class__)
 
-  def __hash__(self) -> int:
-    return hash(self.__class__)
+    def __hash__(self) -> int:
+        return hash(self.__class__)
 
 
 class ZerosModelConfig(base.NeoclassicalTransportModelConfig):
-  """Config for the Zeros model implementation of neoclassical transport."""
+    """Config for the Zeros model implementation of neoclassical transport."""
 
-  model_name: Annotated[Literal['zeros'], torax_pydantic.JAX_STATIC] = 'zeros'
+    model_name: Annotated[Literal["zeros"], torax_pydantic.JAX_STATIC] = "zeros"
 
-  def build_model(self) -> ZerosModel:
-    return ZerosModel()
+    def build_model(self) -> ZerosModel:
+        return ZerosModel()

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Dataclass representing runtime parameter inputs to the pedestal models."""
+
 import dataclasses
 
 import jax
@@ -22,6 +23,6 @@ from torax._src import array_typing
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams:
-  """Input params for the pedestal model."""
+    """Input params for the pedestal model."""
 
-  set_pedestal: array_typing.BoolScalar
+    set_pedestal: array_typing.BoolScalar

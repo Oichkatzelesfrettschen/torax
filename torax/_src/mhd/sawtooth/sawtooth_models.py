@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """A container for sawtooth models."""
+
 import dataclasses
 
 from torax._src import static_dataclass
@@ -22,12 +23,13 @@ from torax._src.mhd.sawtooth import trigger_base
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class SawtoothModels(static_dataclass.StaticDataclass):
-  """Container for sawtooth models.
+    """Container for sawtooth models.
 
-  This class is intended for use as a static argument to Jax so it is
-  immutable and hashes by value. Because this class is not polymorphic
-  it does not have to hash its class id and can just use the default
-  frozen dataclass hash method.
-  """
-  trigger_model: trigger_base.TriggerModel
-  redistribution_model: redistribution_base.RedistributionModel
+    This class is intended for use as a static argument to Jax so it is
+    immutable and hashes by value. Because this class is not polymorphic
+    it does not have to hash its class id and can just use the default
+    frozen dataclass hash method.
+    """
+
+    trigger_model: trigger_base.TriggerModel
+    redistribution_model: redistribution_base.RedistributionModel

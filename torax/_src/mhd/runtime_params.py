@@ -23,6 +23,6 @@ from torax._src.mhd.sawtooth import runtime_params as sawtooth_runtime_params
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams:
-  """Container for the parameters of all configured MHD models."""
+    """Container for the parameters of all configured MHD models."""
 
-  sawtooth: sawtooth_runtime_params.RuntimeParams | None = None
+    sawtooth: sawtooth_runtime_params.RuntimeParams | None = None

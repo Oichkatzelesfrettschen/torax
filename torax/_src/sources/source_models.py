@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Container for source models which build source profiles in TORAX."""
+
 import dataclasses
 import functools
 
@@ -24,21 +25,26 @@ from torax._src.sources import source as source_lib
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class SourceModels(static_dataclass.StaticDataclass):
-  """Source models for the different equations being evolved in Torax.
+    """Source models for the different equations being evolved in Torax.
 
-  This class is intended for use as a static argument to jitted Jax
-  functions. It is thus immutable and supports comparison and hashing
-  by value, and is not a pytree.
-  """
+    This class is intended for use as a static argument to jitted Jax
+    functions. It is thus immutable and supports comparison and hashing
+    by value, and is not a pytree.
+    """
 
-  qei_source: qei_source_lib.QeiSource
-  standard_sources: immutabledict.immutabledict[str, source_lib.Source]
+    qei_source: qei_source_lib.QeiSource
+    standard_sources: immutabledict.immutabledict[str, source_lib.Source]
 
-  @functools.cached_property
-  def psi_sources(self) -> immutabledict.immutabledict[str, source_lib.Source]:
-    """A derived dictionary of sources that affect the psi core_profile."""
-    return immutabledict.immutabledict({
-        name: source
-        for name, source in self.standard_sources.items()
-        if source_lib.AffectedCoreProfile.PSI in source.affected_core_profiles
-    })
+    @functools.cached_property
+    def psi_sources(
+        self,
+    ) -> immutabledict.immutabledict[str, source_lib.Source]:
+        """A derived dictionary of sources that affect the psi core_profile."""
+        return immutabledict.immutabledict(
+            {
+                name: source
+                for name, source in self.standard_sources.items()
+                if source_lib.AffectedCoreProfile.PSI
+                in source.affected_core_profiles
+            }
+        )

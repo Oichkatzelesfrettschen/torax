@@ -35,36 +35,36 @@ NumpySerialized: TypeAlias = tuple[DtypeName, NestedList]
 def _numpy_array_before_validator(
     x: np.ndarray | NumpySerialized,
 ) -> np.ndarray:
-  """Validates and converts a serialized NumPy array."""
+    """Validates and converts a serialized NumPy array."""
 
-  if isinstance(x, np.ndarray):
-    return x
-  # This can be either a tuple or a list. The list case is if this is coming
-  # from JSON, which doesn't have a tuple type.
-  elif isinstance(x, tuple) or isinstance(x, list) and len(x) == 2:
-    dtype, data = x
-    return np.array(data, dtype=np.dtype(dtype))
-  else:
-    raise ValueError(
-        'Expected NumPy or a tuple representing a serialized NumPy array, but'
-        f' got a {type(x)}'
-    )
+    if isinstance(x, np.ndarray):
+        return x
+    # This can be either a tuple or a list. The list case is if this is coming
+    # from JSON, which doesn't have a tuple type.
+    elif isinstance(x, tuple) or isinstance(x, list) and len(x) == 2:
+        dtype, data = x
+        return np.array(data, dtype=np.dtype(dtype))
+    else:
+        raise ValueError(
+            "Expected NumPy or a tuple representing a serialized NumPy array, but"
+            f" got a {type(x)}"
+        )
 
 
 def _numpy_array_serializer(x: np.ndarray) -> NumpySerialized:
-  return (x.dtype.name, x.tolist())
+    return (x.dtype.name, x.tolist())
 
 
 def _numpy_array_is_rank_1(x: np.ndarray) -> np.ndarray:
-  if x.ndim != 1:
-    raise ValueError(f'NumPy array is not 1D, rather of rank {x.ndim}')
-  return x
+    if x.ndim != 1:
+        raise ValueError(f"NumPy array is not 1D, rather of rank {x.ndim}")
+    return x
 
 
 def _numpy_array_is_sorted(x: np.ndarray) -> np.ndarray:
-  if not np.all(x[:-1] <= x[1:]):
-    raise ValueError(f'NumPy array is not sorted: {x}')
-  return x
+    if not np.all(x[:-1] <= x[1:]):
+        raise ValueError(f"NumPy array is not sorted: {x}")
+    return x
 
 
 NumpyArray = Annotated[
@@ -85,11 +85,11 @@ NumpyArray1DSorted = Annotated[
 
 
 def _array_is_unit_interval(array: np.ndarray) -> np.ndarray:
-  if not np.all((array >= 0.0) & (array <= 1.0)):
-    raise ValueError(
-        f'Some array elements are not in the unit interval: {array}'
-    )
-  return array
+    if not np.all((array >= 0.0) & (array <= 1.0)):
+        raise ValueError(
+            f"Some array elements are not in the unit interval: {array}"
+        )
+    return array
 
 
 NumpyArray1DUnitInterval = Annotated[
@@ -99,12 +99,15 @@ NumpyArray1DUnitInterval = Annotated[
 
 
 def _validate_cocos_int(v: int) -> int:
-  """Validates that the integer is a valid COCOS convention number."""
-  allowed = frozenset({1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18})
-  if v not in allowed:
-    raise ValueError(
-        f'Invalid COCOS integer: {v}. Must be one of {sorted(list(allowed))}.'
+    """Validates that the integer is a valid COCOS convention number."""
+    allowed = frozenset(
+        {1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18}
     )
-  return v
+    if v not in allowed:
+        raise ValueError(
+            f"Invalid COCOS integer: {v}. Must be one of {sorted(list(allowed))}."
+        )
+    return v
+
 
 COCOSInt = Annotated[int, pydantic.AfterValidator(_validate_cocos_int)]

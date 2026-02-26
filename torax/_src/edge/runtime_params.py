@@ -21,6 +21,6 @@ import jax
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams:
-  """Base for edge model runtime parameters."""
+    """Base for edge model runtime parameters."""
 
-  pass
+    pass

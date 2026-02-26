@@ -22,7 +22,6 @@ import jax
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams:
-  """Runtime parameters for the time step calculator."""
+    """Runtime parameters for the time step calculator."""
 
-  tolerance: float
-
+    tolerance: float

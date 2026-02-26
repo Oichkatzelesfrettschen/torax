@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Configuration for all the sources/sinks modelled in Torax."""
+
 import dataclasses
 import enum
 
@@ -25,26 +26,26 @@ TimeInterpolatedInput = interpolated_param.TimeInterpolatedInput
 
 @enum.unique
 class Mode(enum.Enum):
-  """Defines how to compute the source terms for this source/sink."""
+    """Defines how to compute the source terms for this source/sink."""
 
-  # Source is set to zero always.
-  ZERO = "ZERO"
+    # Source is set to zero always.
+    ZERO = "ZERO"
 
-  # Source values come from a model in code. These terms can be implicit or
-  # explicit depending on the model implementation.
-  MODEL_BASED = "MODEL_BASED"
+    # Source values come from a model in code. These terms can be implicit or
+    # explicit depending on the model implementation.
+    MODEL_BASED = "MODEL_BASED"
 
-  # Source values come from a pre-determined set of values, that may evolve in
-  # time. Currently, this is only supported for sources that have a 1D output
-  # along the cell grid or face grid.
-  PRESCRIBED = "PRESCRIBED"
+    # Source values come from a pre-determined set of values, that may evolve in
+    # time. Currently, this is only supported for sources that have a 1D output
+    # along the cell grid or face grid.
+    PRESCRIBED = "PRESCRIBED"
 
 
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(frozen=True)
 class RuntimeParams:
-  """Runtime params for a single TORAX source."""
+    """Runtime params for a single TORAX source."""
 
-  prescribed_values: tuple[array_typing.FloatVector, ...]
-  mode: Mode = dataclasses.field(metadata={"static": True})
-  is_explicit: bool = dataclasses.field(metadata={"static": True})
+    prescribed_values: tuple[array_typing.FloatVector, ...]
+    mode: Mode = dataclasses.field(metadata={"static": True})
+    is_explicit: bool = dataclasses.field(metadata={"static": True})

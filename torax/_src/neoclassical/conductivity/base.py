@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Base class for conductivity models."""
+
 import abc
 import dataclasses
 
@@ -26,27 +27,27 @@ from torax._src.torax_pydantic import torax_pydantic
 @jax.tree_util.register_dataclass
 @dataclasses.dataclass(kw_only=True, frozen=True)
 class Conductivity:
-  """Values returned by a conductivity model."""
+    """Values returned by a conductivity model."""
 
-  sigma: array_typing.FloatVectorCell
-  sigma_face: array_typing.FloatVectorFace
+    sigma: array_typing.FloatVectorCell
+    sigma_face: array_typing.FloatVectorFace
 
 
 class ConductivityModel(abc.ABC):
-  """Base class for conductivity models."""
+    """Base class for conductivity models."""
 
-  @abc.abstractmethod
-  def calculate_conductivity(
-      self,
-      geometry: geometry_lib.Geometry,
-      core_profiles: state.CoreProfiles,
-  ) -> Conductivity:
-    """Calculates conductivity."""
+    @abc.abstractmethod
+    def calculate_conductivity(
+        self,
+        geometry: geometry_lib.Geometry,
+        core_profiles: state.CoreProfiles,
+    ) -> Conductivity:
+        """Calculates conductivity."""
 
 
 class ConductivityModelConfig(torax_pydantic.BaseModelFrozen, abc.ABC):
-  """Base class for conductivity model configs."""
+    """Base class for conductivity model configs."""
 
-  @abc.abstractmethod
-  def build_model(self) -> ConductivityModel:
-    """Builds conductivity model."""
+    @abc.abstractmethod
+    def build_model(self) -> ConductivityModel:
+        """Builds conductivity model."""

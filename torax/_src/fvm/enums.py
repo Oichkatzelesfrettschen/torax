@@ -15,15 +15,16 @@
 
 Enums shared through the `fvm` package.
 """
+
 import enum
 
 
 @enum.unique
 class InitialGuessMode(enum.StrEnum):
-  """Modes for initial guess of x_new for iterative solvers."""
+    """Modes for initial guess of x_new for iterative solvers."""
 
-  # Initialize x_new = x_old
-  X_OLD = 'x_old'
+    # Initialize x_new = x_old
+    X_OLD = "x_old"
 
-  # Use the linear solver to guess x_new
-  LINEAR = 'linear'
+    # Use the linear solver to guess x_new
+    LINEAR = "linear"

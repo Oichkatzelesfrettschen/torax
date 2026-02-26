@@ -17,13 +17,13 @@
 import sys
 
 from absl import flags
+
 # Need to import absltest to get --test_srcdir defined.
-from absl.testing import absltest  # pylint: disable=unused-import
 import pytest
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def parse_flags():
-  # Only pass the first item, because pytest flags shouldn't be parsed as absl
-  # flags.
-  flags.FLAGS(sys.argv[:1])
+    # Only pass the first item, because pytest flags shouldn't be parsed as absl
+    # flags.
+    flags.FLAGS(sys.argv[:1])

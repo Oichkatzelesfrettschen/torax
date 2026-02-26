@@ -18,27 +18,27 @@ import enum
 
 
 class ComputationMode(enum.StrEnum):
-  """Computation modes for the extended Lengyel model.
+    """Computation modes for the extended Lengyel model.
 
-  Attributes:
-    FORWARD: Calculate impurity concentrations for a given target temperature.
-    INVERSE: Calculate target temperature for a given impurity concentration.
-  """
+    Attributes:
+      FORWARD: Calculate impurity concentrations for a given target temperature.
+      INVERSE: Calculate target temperature for a given impurity concentration.
+    """
 
-  FORWARD = 'forward'
-  INVERSE = 'inverse'
+    FORWARD = "forward"
+    INVERSE = "inverse"
 
 
 class SolverMode(enum.StrEnum):
-  """Solver modes for the extended Lengyel model.
+    """Solver modes for the extended Lengyel model.
 
-  Attributes:
-    FIXED_POINT: A simple fixed-point iterative solver.
-    NEWTON_RAPHSON: A Newton-Raphson solver (not yet implemented).
-    HYBRID: A hybrid solver using a warm start from fixed-point, and then
-      Newton-Raphson.
-  """
+    Attributes:
+      FIXED_POINT: A simple fixed-point iterative solver.
+      NEWTON_RAPHSON: A Newton-Raphson solver (not yet implemented).
+      HYBRID: A hybrid solver using a warm start from fixed-point, and then
+        Newton-Raphson.
+    """
 
-  FIXED_POINT = 'fixed_point'
-  NEWTON_RAPHSON = 'newton_raphson'
-  HYBRID = 'hybrid'
+    FIXED_POINT = "fixed_point"
+    NEWTON_RAPHSON = "newton_raphson"
+    HYBRID = "hybrid"

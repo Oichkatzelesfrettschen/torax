@@ -26,33 +26,33 @@ from torax._src.torax_pydantic import torax_pydantic
 
 @enum.unique
 class TimeStepCalculatorType(enum.Enum):
-  """Types of time step calculators."""
+    """Types of time step calculators."""
 
-  CHI = 'chi'
-  FIXED = 'fixed'
+    CHI = "chi"
+    FIXED = "fixed"
 
 
 class TimeStepCalculator(torax_pydantic.BaseModelFrozen):
-  """Config for a time step calculator.
+    """Config for a time step calculator.
 
-  Attributes:
-    calculator_type: The type of time step calculator to use.
-    tolerance: The tolerance within the final time for which the simulation will
-      be considered done.
-  """
+    Attributes:
+      calculator_type: The type of time step calculator to use.
+      tolerance: The tolerance within the final time for which the simulation will
+        be considered done.
+    """
 
-  calculator_type: Annotated[
-      TimeStepCalculatorType, torax_pydantic.JAX_STATIC
-  ] = TimeStepCalculatorType.CHI
-  tolerance: float = 1e-7
+    calculator_type: Annotated[
+        TimeStepCalculatorType, torax_pydantic.JAX_STATIC
+    ] = TimeStepCalculatorType.CHI
+    tolerance: float = 1e-7
 
-  def build_runtime_params(self) -> runtime_params.RuntimeParams:
-    return runtime_params.RuntimeParams(tolerance=self.tolerance)
+    def build_runtime_params(self) -> runtime_params.RuntimeParams:
+        return runtime_params.RuntimeParams(tolerance=self.tolerance)
 
-  @property
-  def time_step_calculator(self) -> time_step_calculator.TimeStepCalculator:
-    match self.calculator_type:
-      case TimeStepCalculatorType.CHI:
-        return chi_time_step_calculator.ChiTimeStepCalculator()
-      case TimeStepCalculatorType.FIXED:
-        return fixed_time_step_calculator.FixedTimeStepCalculator()
+    @property
+    def time_step_calculator(self) -> time_step_calculator.TimeStepCalculator:
+        match self.calculator_type:
+            case TimeStepCalculatorType.CHI:
+                return chi_time_step_calculator.ChiTimeStepCalculator()
+            case TimeStepCalculatorType.FIXED:
+                return fixed_time_step_calculator.FixedTimeStepCalculator()

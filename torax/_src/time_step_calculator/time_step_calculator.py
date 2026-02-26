@@ -25,72 +25,72 @@ from torax._src.geometry import geometry
 
 
 class TimeStepCalculator(abc.ABC):
-  """Iterates over time during simulation.
+    """Iterates over time during simulation.
 
-  Usage follows this pattern:
+    Usage follows this pattern:
 
-  .. code-block: python
+    .. code-block: python
 
-    ts = <TimeStepCalculator subclass constructor>
-    ts_state = ts.initial_state()
-    t = 0.
-    while not ts.is_done(t):
-      dt, ts_state = ts.next_dt(geo, time_step_calculator_state)
-      t += dt
-      sim_state = <update sim_state with step of size dt>
-  """
+      ts = <TimeStepCalculator subclass constructor>
+      ts_state = ts.initial_state()
+      t = 0.
+      while not ts.is_done(t):
+        dt, ts_state = ts.next_dt(geo, time_step_calculator_state)
+        t += dt
+        sim_state = <update sim_state with step of size dt>
+    """
 
-  def is_done(
-      self, t: float | jax.Array, t_final: float, tolerance: float
-  ) -> bool | jax.Array:
-    return t >= (t_final - tolerance)
+    def is_done(
+        self, t: float | jax.Array, t_final: float, tolerance: float
+    ) -> bool | jax.Array:
+        return t >= (t_final - tolerance)
 
-  @functools.partial(
-      jax.jit,
-      static_argnames=['self'],
-  )
-  def next_dt(
-      self,
-      t: jax.Array,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles: state.CoreProfiles,
-      core_transport: state.CoreTransport,
-  ) -> jax.Array:
-    """Returns the next time step duration."""
-    dt = self._next_dt(
-        runtime_params,
-        geo,
-        core_profiles,
-        core_transport,
+    @functools.partial(
+        jax.jit,
+        static_argnames=["self"],
     )
-    crosses_t_final = (t < runtime_params.numerics.t_final) * (
-        t + dt > runtime_params.numerics.t_final
-    )
-    dt = jax.lax.select(
-        jnp.logical_and(
-            runtime_params.numerics.exact_t_final,
-            crosses_t_final,
-        ),
-        runtime_params.numerics.t_final - t,
-        dt,
-    )
-    return dt
+    def next_dt(
+        self,
+        t: jax.Array,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles: state.CoreProfiles,
+        core_transport: state.CoreTransport,
+    ) -> jax.Array:
+        """Returns the next time step duration."""
+        dt = self._next_dt(
+            runtime_params,
+            geo,
+            core_profiles,
+            core_transport,
+        )
+        crosses_t_final = (t < runtime_params.numerics.t_final) * (
+            t + dt > runtime_params.numerics.t_final
+        )
+        dt = jax.lax.select(
+            jnp.logical_and(
+                runtime_params.numerics.exact_t_final,
+                crosses_t_final,
+            ),
+            runtime_params.numerics.t_final - t,
+            dt,
+        )
+        return dt
 
-  @abc.abstractmethod
-  def _next_dt(
-      self,
-      runtime_params: runtime_params_lib.RuntimeParams,
-      geo: geometry.Geometry,
-      core_profiles: state.CoreProfiles,
-      core_transport: state.CoreTransport,
-  ) -> jax.Array:
-    """Returns the next time step duration."""
+    @abc.abstractmethod
+    def _next_dt(
+        self,
+        runtime_params: runtime_params_lib.RuntimeParams,
+        geo: geometry.Geometry,
+        core_profiles: state.CoreProfiles,
+        core_transport: state.CoreTransport,
+    ) -> jax.Array:
+        """Returns the next time step duration."""
 
-  @abc.abstractmethod
-  def __eq__(self, other) -> bool:
-    """Equality for the TimeStepCalculator, needed for JAX."""
+    @abc.abstractmethod
+    def __eq__(self, other) -> bool:
+        """Equality for the TimeStepCalculator, needed for JAX."""
 
-  @abc.abstractmethod
-  def __hash__(self) -> int:
-    """Hash for the TimeStepCalculator, needed for JAX."""
+    @abc.abstractmethod
+    def __hash__(self) -> int:
+        """Hash for the TimeStepCalculator, needed for JAX."""

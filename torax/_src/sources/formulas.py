@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Prescribed formulas for computing source profiles."""
+
 import jax
 from jax import numpy as jnp
 from torax._src import math_utils
@@ -28,29 +29,29 @@ def exponential_profile(
     width: float,
     total: float,
 ) -> jax.Array:
-  """Returns an exponential profile on the cell grid.
+    """Returns an exponential profile on the cell grid.
 
-  The profile is parameterized by (decay_start, width, total) like so:
+    The profile is parameterized by (decay_start, width, total) like so:
 
-    profile = C * exp(-(decay_start - r) / width)
+      profile = C * exp(-(decay_start - r) / width)
 
-  Where C is a calculated prefactor to ensure the volume integral of the profile
-  equals `total`.
+    Where C is a calculated prefactor to ensure the volume integral of the profile
+    equals `total`.
 
-  Args:
-    geo: Geometry constants of torus.
-    decay_start: See description above. In normalized radial coordinate.
-    width: See description above. In normalized radial coordinate.
-    total: See description above.
+    Args:
+      geo: Geometry constants of torus.
+      decay_start: See description above. In normalized radial coordinate.
+      width: See description above. In normalized radial coordinate.
+      total: See description above.
 
-  Returns:
-    Exponential profile on the cell grid.
-  """
-  r = geo.rho_norm
-  S = jnp.exp(-(decay_start - r) / width)
-  # calculate constant prefactor
-  C = total / math_utils.volume_integration(S, geo)
-  return C * S
+    Returns:
+      Exponential profile on the cell grid.
+    """
+    r = geo.rho_norm
+    S = jnp.exp(-(decay_start - r) / width)
+    # calculate constant prefactor
+    C = total / math_utils.volume_integration(S, geo)
+    return C * S
 
 
 def gaussian_profile(
@@ -60,26 +61,26 @@ def gaussian_profile(
     width: float,
     total: float,
 ) -> jax.Array:
-  """Returns a gaussian profile on the cell grid.
+    """Returns a gaussian profile on the cell grid.
 
-  The profile is parameterized by (center, width, total) like so:
+    The profile is parameterized by (center, width, total) like so:
 
-    profile = C * exp(-( (r - center)**2 / (2 * width**2) ))
+      profile = C * exp(-( (r - center)**2 / (2 * width**2) ))
 
-  Where C is a calculated prefactor to ensure the volume integral of the profile
-  equals `total`.
+    Where C is a calculated prefactor to ensure the volume integral of the profile
+    equals `total`.
 
-  Args:
-    geo: Geometry constants of torus.
-    center: See description above. In normalized radial coordinate.
-    width: See description above. In normalized radial coordinate.
-    total: See description above.
+    Args:
+      geo: Geometry constants of torus.
+      center: See description above. In normalized radial coordinate.
+      width: See description above. In normalized radial coordinate.
+      total: See description above.
 
-  Returns:
-    Gaussian profile on the cell grid.
-  """
-  r = geo.rho_norm
-  S = jnp.exp(-((r - center) ** 2) / (2 * width**2))
-  # calculate constant prefactor
-  C = total / math_utils.volume_integration(S, geo)
-  return C * S
+    Returns:
+      Gaussian profile on the cell grid.
+    """
+    r = geo.rho_norm
+    S = jnp.exp(-((r - center) ** 2) / (2 * width**2))
+    # calculate constant prefactor
+    C = total / math_utils.volume_integration(S, geo)
+    return C * S
